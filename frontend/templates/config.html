@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration - Component Data Processor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>Configuration du système
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Configuration actuelle du Component Data Processor
+                </div>
+                
+                <form id="config-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-file me-2 text-primary"></i>Fichiers</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Master BOM Path</label>
+                                <input type="text" class="form-control" name="master_bom_path" 
+                                       value="{{ config.files.master_bom_path if config.files else 'Master_BOM.xlsx' }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Répertoire de sortie</label>
+                                <input type="text" class="form-control" name="output_dir" 
+                                       value="{{ config.files.output_dir if config.files else 'output' }}">
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="backup_enabled" 
+                                       {{ 'checked' if config.files and config.files.backup_enabled else 'checked' }}>
+                                <label class="form-check-label">Sauvegarde automatique</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cogs me-2 text-primary"></i>Traitement</h6>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="convert_to_uppercase" 
+                                       {{ 'checked' if config.processing and config.processing.convert_to_uppercase else 'checked' }}>
+                                <label class="form-check-label">Convertir en majuscules</label>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="remove_non_ascii" 
+                                       {{ 'checked' if config.processing and config.processing.remove_non_ascii else 'checked' }}>
+                                <label class="form-check-label">Supprimer caractères non-ASCII</label>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="trim_whitespace" 
+                                       {{ 'checked' if config.processing and config.processing.trim_whitespace else 'checked' }}>
+                                <label class="form-check-label">Supprimer espaces superflus</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-clipboard-list me-2 text-primary"></i>Logging</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Niveau de log</label>
+                                <select class="form-select" name="log_level">
+                                    <option value="DEBUG" {{ 'selected' if config.logging and config.logging.level == 'DEBUG' else '' }}>DEBUG</option>
+                                    <option value="INFO" {{ 'selected' if config.logging and config.logging.level == 'INFO' else 'selected' }}>INFO</option>
+                                    <option value="WARNING" {{ 'selected' if config.logging and config.logging.level == 'WARNING' else '' }}>WARNING</option>
+                                    <option value="ERROR" {{ 'selected' if config.logging and config.logging.level == 'ERROR' else '' }}>ERROR</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="log_to_console" 
+                                       {{ 'checked' if config.logging and config.logging.log_to_console else 'checked' }}>
+                                <label class="form-check-label">Log vers console</label>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="log_to_file" 
+                                       {{ 'checked' if config.logging and config.logging.log_to_file else 'checked' }}>
+                                <label class="form-check-label">Log vers fichier</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle me-2 text-primary"></i>Validation</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Longueur max PN</label>
+                                <input type="number" class="form-control" name="max_pn_length" 
+                                       value="{{ config.validation.max_pn_length if config.validation else '50' }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Prix minimum</label>
+                                <input type="number" step="0.01" class="form-control" name="price_min" 
+                                       value="{{ config.validation.price_min if config.validation else '0.0' }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Prix maximum</label>
+                                <input type="number" step="0.01" class="form-control" name="price_max" 
+                                       value="{{ config.validation.price_max if config.validation else '10000.0' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-outline-secondary me-md-2" id="reset-btn">
+                            <i class="fas fa-undo me-2"></i>Réinitialiser
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Sauvegarder
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Configuration JSON -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-code me-2"></i>Configuration JSON actuelle
+                </h6>
+            </div>
+            <div class="card-body">
+                <pre id="config-json" class="bg-light p-3 rounded"><code>{{ config | tojson(indent=2) if config else '{}' }}</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const configForm = document.getElementById('config-form');
+    const resetBtn = document.getElementById('reset-btn');
+    const configJson = document.getElementById('config-json');
+    
+    // Sauvegarder la configuration
+    configForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(configForm);
+        const config = {
+            files: {
+                master_bom_path: formData.get('master_bom_path'),
+                output_dir: formData.get('output_dir'),
+                backup_enabled: formData.has('backup_enabled')
+            },
+            processing: {
+                convert_to_uppercase: formData.has('convert_to_uppercase'),
+                remove_non_ascii: formData.has('remove_non_ascii'),
+                trim_whitespace: formData.has('trim_whitespace'),
+                required_columns: ["PN", "Project"],
+                text_columns: ["PN", "Project", "Supplier", "Description"],
+                normalize_spaces: true,
+                remove_empty_rows: true
+            },
+            logging: {
+                level: formData.get('log_level'),
+                log_to_console: formData.has('log_to_console'),
+                log_to_file: formData.has('log_to_file'),
+                log_file_pattern: "component_processor_{timestamp}.log"
+            },
+            validation: {
+                max_pn_length: parseInt(formData.get('max_pn_length')),
+                price_min: parseFloat(formData.get('price_min')),
+                price_max: parseFloat(formData.get('price_max')),
+                pn_pattern: "^[A-Z0-9\\-_]+$",
+                max_project_length: 100,
+                valid_statuses: ["A", "D", "0", "X"]
+            },
+            excel: {
+                highlight_colors: {
+                    duplicate: "FFCCCC",
+                    updated: "FFFFCC",
+                    skipped: "E6E6E6",
+                    error: "FF9999",
+                    header: "4472C4"
+                },
+                auto_adjust_columns: true,
+                add_summary_sheet: true,
+                freeze_header: true
+            }
+        };
+        
+        // Afficher la configuration dans le JSON
+        configJson.innerHTML = '<code>' + JSON.stringify(config, null, 2) + '</code>';
+        
+        // Envoyer au serveur
+        fetch('/config', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(config)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Afficher un message de succès
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show';
+                alert.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    Configuration sauvegardée avec succès !
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                configForm.insertBefore(alert, configForm.firstChild);
+                
+                // Supprimer l'alerte après 3 secondes
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            } else {
+                throw new Error(data.error);
+            }
+        })
+        .catch(error => {
+            // Afficher un message d'erreur
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Erreur lors de la sauvegarde: ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            configForm.insertBefore(alert, configForm.firstChild);
+        });
+    });
+    
+    // Réinitialiser le formulaire
+    resetBtn.addEventListener('click', function() {
+        if (confirm('Êtes-vous sûr de vouloir réinitialiser la configuration ?')) {
+            location.reload();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Fichiers d'exemple - Component Data Processor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-file-excel me-2"></i>Fichiers d'exemple
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if success %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Les fichiers d'exemple ont été créés avec succès !
+                </div>
+
+                {% if created_files %}
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Fichiers créés :</h6>
+                    <ul class="mb-0">
+                        {% for file in created_files %}
+                        <li>{{ file }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if output %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-terminal me-2"></i>Détails de création</h6>
+                    </div>
+                    <div class="card-body">
+                        <pre class="small">{{ output }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <i class="fas fa-database fa-3x text-success mb-3"></i>
+                                <h5>Master_BOM.xlsx</h5>
+                                <p class="text-muted">Fichier de référence Master BOM avec composants d'exemple</p>
+                                <a href="/download/Master_BOM.xlsx" class="btn btn-success">
+                                    <i class="fas fa-download me-2"></i>Télécharger
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-excel fa-3x text-primary mb-3"></i>
+                                <h5>Sample_Input_Data.xlsx</h5>
+                                <p class="text-muted">Données d'entrée d'exemple pour tester le traitement</p>
+                                <a href="{{ url_for('upload_file') }}" class="btn btn-primary">
+                                    <i class="fas fa-upload me-2"></i>Traiter maintenant
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% elif success == False %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Erreur lors de la création des fichiers d'exemple.
+                    {% if error %}
+                    <br><strong>Détails :</strong> {{ error }}
+                    {% endif %}
+                </div>
+
+                {% if output %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-bug me-2"></i>Informations de débogage</h6>
+                    </div>
+                    <div class="card-body">
+                        <pre class="small">{{ output }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-excel fa-4x text-muted mb-3"></i>
+                    <h5>Créer des fichiers d'exemple</h5>
+                    <p class="text-muted">
+                        Générez des fichiers d'exemple pour tester le Component Data Processor
+                    </p>
+                    <form method="post">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-magic me-2"></i>Créer les exemples
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

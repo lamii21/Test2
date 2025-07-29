@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Component Data Processor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Hero Section -->
+        <div class="card mb-4">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-microchip fa-4x text-primary mb-3"></i>
+                <h1 class="card-title">Component Data Processor</h1>
+                <p class="card-text lead">
+                    Solution professionnelle pour automatiser le traitement et la mise à jour 
+                    des données de composants électroniques basées sur des fichiers Excel.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg me-md-2">
+                        <i class="fas fa-upload me-2"></i>Traiter un fichier
+                    </a>
+                    <a href="{{ url_for('create_samples') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-file-excel me-2"></i>Créer des exemples
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fonctionnalités -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-broom fa-2x text-primary me-3"></i>
+                            <h5 class="card-title mb-0">Nettoyage automatique</h5>
+                        </div>
+                        <p class="card-text">
+                            Suppression des lignes vides, normalisation des formats,
+                            validation des données selon les règles métier.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-search fa-2x text-primary me-3"></i>
+                            <h5 class="card-title mb-0">Lookup intelligent</h5>
+                        </div>
+                        <p class="card-text">
+                            Comparaison automatique avec le Master BOM,
+                            application de la logique métier selon les statuts.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-file-excel fa-2x text-primary me-3"></i>
+                            <h5 class="card-title mb-0">Sortie formatée</h5>
+                        </div>
+                        <p class="card-text">
+                            Génération de fichiers Excel avec mise en surbrillance,
+                            commentaires et rapports détaillés.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-chart-line fa-2x text-primary me-3"></i>
+                            <h5 class="card-title mb-0">Rapports complets</h5>
+                        </div>
+                        <p class="card-text">
+                            Statistiques détaillées, logs de traitement,
+                            traçabilité complète des opérations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Statut système -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-server me-2"></i>Statut du système
+                </h5>
+            </div>
+            <div class="card-body" id="system-status">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fichiers récents -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-alt me-2"></i>Fichiers récents
+                </h5>
+            </div>
+            <div class="card-body" id="recent-files">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions rapides -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Actions rapides
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Traiter un fichier
+                    </a>
+                    <a href="{{ url_for('create_samples') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-file-excel me-2"></i>Créer des exemples
+                    </a>
+                    <a href="{{ url_for('config_page') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-cog me-2"></i>Configuration
+                    </a>
+                    <a href="{{ url_for('help_page') }}" class="btn btn-outline-info">
+                        <i class="fas fa-question-circle me-2"></i>Aide
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-project-diagram me-2"></i>Workflow de traitement
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <i class="fas fa-file-upload fa-3x text-primary"></i>
+                        </div>
+                        <h6>1. Upload</h6>
+                        <p class="small text-muted">Télécharger votre fichier Excel</p>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle fa-3x text-success"></i>
+                        </div>
+                        <h6>2. Validation</h6>
+                        <p class="small text-muted">Vérification automatique</p>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <i class="fas fa-broom fa-3x text-info"></i>
+                        </div>
+                        <h6>3. Nettoyage</h6>
+                        <p class="small text-muted">Normalisation des données</p>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <i class="fas fa-search fa-3x text-warning"></i>
+                        </div>
+                        <h6>4. Lookup</h6>
+                        <p class="small text-muted">Correspondance Master BOM</p>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <i class="fas fa-cogs fa-3x text-secondary"></i>
+                        </div>
+                        <h6>5. Traitement</h6>
+                        <p class="small text-muted">Application logique métier</p>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <i class="fas fa-download fa-3x text-primary"></i>
+                        </div>
+                        <h6>6. Résultats</h6>
+                        <p class="small text-muted">Téléchargement des fichiers</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Charger le statut système
+    function loadSystemStatus() {
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                const statusHtml = `
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <i class="fas fa-python fa-2x ${data.dependencies_ok ? 'text-success' : 'text-danger'}"></i>
+                                <div class="small mt-1">Dépendances</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <i class="fas fa-cog fa-2x ${data.config_exists ? 'text-success' : 'text-warning'}"></i>
+                                <div class="small mt-1">Configuration</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <i class="fas fa-file fa-2x ${data.master_bom_exists ? 'text-success' : 'text-warning'}"></i>
+                                <div class="small mt-1">Master BOM</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <i class="fas fa-folder fa-2x ${data.output_files_count > 0 ? 'text-success' : 'text-muted'}"></i>
+                                <div class="small mt-1">${data.output_files_count} fichiers</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('system-status').innerHTML = statusHtml;
+            })
+            .catch(error => {
+                document.getElementById('system-status').innerHTML = 
+                    '<div class="text-center text-danger"><i class="fas fa-exclamation-triangle"></i> Erreur de connexion</div>';
+            });
+    }
+    
+    // Charger les fichiers récents
+    function loadRecentFiles() {
+        fetch('/api/files')
+            .then(response => response.json())
+            .then(data => {
+                const files = data.files.slice(0, 5); // 5 fichiers les plus récents
+                
+                if (files.length === 0) {
+                    document.getElementById('recent-files').innerHTML = 
+                        '<div class="text-center text-muted"><i class="fas fa-inbox"></i> Aucun fichier</div>';
+                    return;
+                }
+                
+                let filesHtml = '<div class="list-group list-group-flush">';
+                files.forEach(file => {
+                    const size = (file.size / 1024).toFixed(1);
+                    const date = new Date(file.modified).toLocaleDateString('fr-FR');
+                    
+                    filesHtml += `
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <div>
+                                <div class="fw-bold small">${file.name}</div>
+                                <div class="text-muted small">${size} KB - ${date}</div>
+                            </div>
+                            <a href="${file.download_url}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    `;
+                });
+                filesHtml += '</div>';
+                
+                document.getElementById('recent-files').innerHTML = filesHtml;
+            })
+            .catch(error => {
+                document.getElementById('recent-files').innerHTML = 
+                    '<div class="text-center text-danger"><i class="fas fa-exclamation-triangle"></i> Erreur de chargement</div>';
+            });
+    }
+    
+    // Charger les données au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSystemStatus();
+        loadRecentFiles();
+        
+        // Actualiser toutes les 30 secondes
+        setInterval(() => {
+            loadSystemStatus();
+            loadRecentFiles();
+        }, 30000);
+    });
+</script>
+{% endblock %}

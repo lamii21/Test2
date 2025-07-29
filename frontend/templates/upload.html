@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}Traiter un fichier - Component Data Processor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>Traiter un fichier Excel
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="upload-form">
+                    <!-- Zone de drop -->
+                    <div class="file-drop-zone mb-4" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h5>Glissez-déposez votre fichier Excel ici</h5>
+                        <p class="text-muted">ou cliquez pour sélectionner un fichier</p>
+                        <input type="file" name="file" id="file-input" class="d-none" accept=".xlsx,.xls">
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Formats acceptés: .xlsx, .xls (max 100MB)
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Informations du fichier sélectionné -->
+                    <div id="file-info" class="alert alert-info d-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-excel fa-2x me-3"></i>
+                            <div>
+                                <div class="fw-bold" id="file-name"></div>
+                                <div class="small text-muted" id="file-size"></div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="clear-file">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Options de traitement -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="validate-first" checked>
+                                <label class="form-check-label" for="validate-first">
+                                    Valider avant traitement
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="verbose-mode">
+                                <label class="form-check-label" for="verbose-mode">
+                                    Mode verbeux (plus de détails)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <button type="button" class="btn btn-outline-primary me-md-2" id="validate-btn" disabled>
+                            <i class="fas fa-check-circle me-2"></i>Valider seulement
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="process-btn" disabled>
+                            <i class="fas fa-cogs me-2"></i>Traiter le fichier
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Barre de progression -->
+                <div class="progress-container">
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div class="text-center">
+                        <span id="progress-text">Traitement en cours...</span>
+                    </div>
+                </div>
+                
+                <!-- Résultats de validation -->
+                <div id="validation-results" class="mt-4 d-none">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-clipboard-check me-2"></i>Résultats de validation
+                            </h6>
+                        </div>
+                        <div class="card-body" id="validation-content">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aide -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Conseils d'utilisation
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-file-excel me-2 text-primary"></i>Format requis</h6>
+                        <ul class="small">
+                            <li>Fichier Excel (.xlsx ou .xls)</li>
+                            <li>Colonnes requises: PN, Project</li>
+                            <li>Première ligne = en-têtes</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cogs me-2 text-primary"></i>Traitement</h6>
+                        <ul class="small">
+                            <li>Nettoyage automatique des données</li>
+                            <li>Lookup avec Master BOM</li>
+                            <li>Application de la logique métier</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('create_samples') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file-excel me-1"></i>Créer des fichiers d'exemple
+                    </a>
+                    <a href="{{ url_for('help_page') }}" class="btn btn-sm btn-outline-info">
+                        <i class="fas fa-question-circle me-1"></i>Guide complet
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const clearFileBtn = document.getElementById('clear-file');
+    const validateBtn = document.getElementById('validate-btn');
+    const processBtn = document.getElementById('process-btn');
+    const uploadForm = document.getElementById('upload-form');
+    const progressContainer = document.querySelector('.progress-container');
+    const progressBar = document.querySelector('.progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const validationResults = document.getElementById('validation-results');
+    const validationContent = document.getElementById('validation-content');
+    
+    // Gestion du drag & drop
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelection();
+        }
+    });
+    
+    fileInput.addEventListener('change', handleFileSelection);
+    
+    function handleFileSelection() {
+        const file = fileInput.files[0];
+        
+        if (file) {
+            // Vérifier le type de fichier
+            const allowedTypes = [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel'
+            ];
+            
+            if (!allowedTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls)$/i)) {
+                alert('Type de fichier non autorisé. Utilisez .xlsx ou .xls');
+                clearFile();
+                return;
+            }
+            
+            // Afficher les informations du fichier
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('d-none');
+            
+            // Activer les boutons
+            validateBtn.disabled = false;
+            processBtn.disabled = false;
+            
+            // Validation automatique si activée
+            if (document.getElementById('validate-first').checked) {
+                validateFile();
+            }
+        }
+    }
+    
+    function clearFile() {
+        fileInput.value = '';
+        fileInfo.classList.add('d-none');
+        validateBtn.disabled = true;
+        processBtn.disabled = true;
+        validationResults.classList.add('d-none');
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    clearFileBtn.addEventListener('click', clearFile);
+    
+    // Validation du fichier
+    validateBtn.addEventListener('click', validateFile);
+    
+    function validateFile() {
+        const file = fileInput.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        validateBtn.disabled = true;
+        validateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validation...';
+        
+        fetch('/validate', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Réponse non-JSON reçue du serveur');
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayValidationResults(data);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            const errorMsg = error.message || 'Erreur lors de la validation';
+
+            // Afficher l'erreur dans l'interface
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${errorMsg}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            const container = document.querySelector('.card-body');
+            container.appendChild(alertDiv);
+        })
+        .finally(() => {
+            validateBtn.disabled = false;
+            validateBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Valider seulement';
+        });
+    }
+    
+    function displayValidationResults(data) {
+        let html = '';
+        
+        if (data.format_valid) {
+            html += '<div class="alert alert-success"><i class="fas fa-check me-2"></i>Format de fichier valide</div>';
+        } else {
+            html += `<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Format invalide: ${data.format_error}</div>`;
+        }
+        
+        if (data.content_valid) {
+            html += '<div class="alert alert-success"><i class="fas fa-check me-2"></i>Contenu valide</div>';
+        } else {
+            html += '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Problèmes détectés:</div>';
+            html += '<ul class="mb-0">';
+            data.content_errors.forEach(error => {
+                html += `<li>${error}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        validationContent.innerHTML = html;
+        validationResults.classList.remove('d-none');
+    }
+    
+    // Soumission du formulaire
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!fileInput.files[0]) {
+            alert('Veuillez sélectionner un fichier');
+            return;
+        }
+        
+        // Afficher la barre de progression
+        progressContainer.style.display = 'block';
+        processBtn.disabled = true;
+        processBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Traitement...';
+        
+        // Simuler la progression
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 90) progress = 90;
+            
+            progressBar.style.width = progress + '%';
+            
+            if (progress < 30) {
+                progressText.textContent = 'Validation du fichier...';
+            } else if (progress < 60) {
+                progressText.textContent = 'Nettoyage des données...';
+            } else {
+                progressText.textContent = 'Application de la logique métier...';
+            }
+        }, 500);
+        
+        // Soumettre le formulaire normalement (sans AJAX pour éviter les problèmes)
+        // Laisser le navigateur gérer la soumission et la redirection
+        uploadForm.submit();
+    });
+</script>
+{% endblock %}

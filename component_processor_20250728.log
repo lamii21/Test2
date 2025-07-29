@@ -1,0 +1,339 @@
+2025-07-28 15:47:27,701 - INFO - Starting processing of file: Sample_Input_Data.xlsx
+2025-07-28 15:47:27,713 - INFO - Loaded input file with 23 rows
+2025-07-28 15:47:27,713 - INFO - Starting data cleaning process...
+2025-07-28 15:47:27,723 - INFO - Data cleaning completed. Original: 23, Cleaned: 19, Excluded: 4
+2025-07-28 15:47:27,732 - INFO - Master BOM loaded successfully with 20 records
+2025-07-28 15:47:27,732 - INFO - Starting lookup process...
+2025-07-28 15:47:27,739 - INFO - Processing lookup results...
+2025-07-28 15:47:27,740 - INFO - Updated status D to X for PN: RES001, Project: PROJ_A
+2025-07-28 15:47:27,740 - INFO - Updated status D to X for PN: CAP002, Project: PROJ_B
+2025-07-28 15:47:27,741 - INFO - Added duplicate row for PN: LED004, Project: PROJ_C
+2025-07-28 15:47:27,741 - INFO - Updated status D to X for PN: IC003, Project: PROJ_A
+2025-07-28 15:47:27,742 - INFO - Added duplicate row for PN: SW005, Project: PROJ_B
+2025-07-28 15:47:27,742 - INFO - Skipped component with status X: PN: OLD006, Project: PROJ_D
+2025-07-28 15:47:27,742 - INFO - Added unknown component row for PN: NEW001, Project: PROJ_NEW
+2025-07-28 15:47:27,743 - INFO - Added unknown component row for PN: NEW002, Project: PROJ_A
+2025-07-28 15:47:27,743 - INFO - Added unknown component row for PN: UNKNOWN003, Project: PROJ_X
+2025-07-28 15:47:27,743 - INFO - Added duplicate row for PN: TRANS014, Project: PROJ_D
+2025-07-28 15:47:27,743 - INFO - Added unknown component row for PN: SPECIAL-001, Project: PROJ_A
+2025-07-28 15:47:27,744 - INFO - Added unknown component row for PN: UNICODE_TEST, Project: PROJ_B
+2025-07-28 15:47:27,744 - INFO - Added unknown component row for PN: PARTIAL001, Project: PROJ_C
+2025-07-28 15:47:27,745 - INFO - Updated status D to X for PN: MOTOR017, Project: PROJ_F
+2025-07-28 15:47:27,745 - INFO - Added duplicate row for PN: BUZZER020, Project: PROJ_I
+2025-07-28 15:47:27,745 - INFO - Added unknown component row for PN: TEST123ABC, Project: PROJ_TEST_01
+2025-07-28 15:47:27,746 - INFO - Lookup processing completed
+2025-07-28 15:47:27,746 - INFO - Saving output files...
+2025-07-28 15:47:27,835 - INFO - Excluded rows saved to: output\Clean_Excluded_2025-07-28.xlsx
+2025-07-28 15:47:27,846 - INFO - Summary report saved to: output\Processing_Summary_2025-07-28.csv
+2025-07-28 15:47:27,846 - INFO - Main output saved to: output\Update_2025-07-28.xlsx
+2025-07-28 15:47:27,846 - INFO - Updated Master BOM saved to: output\Master_BOM_Updated_2025-07-28.xlsx
+2025-07-28 15:47:27,847 - INFO - Processing completed successfully
+2025-07-28 16:05:50 - Main - INFO - Création des fichiers d'exemple...
+2025-07-28 16:05:50 - Main - INFO - Création du Master BOM d'exemple...
+2025-07-28 16:05:50 - Main - INFO - Création des fichiers d'entrée d'exemple...
+2025-07-28 16:05:50 - Main - INFO - Fichiers d'exemple créés avec succès!
+2025-07-28 16:06:01 - ConfigManager - INFO - Configuration chargée depuis: config/default.json
+2025-07-28 16:06:01 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:06:01 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': 'config/default.json'}
+2025-07-28 16:06:01 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:06:01 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:06:01 - ComponentDataProcessor - ERROR - Validation du contenu échouée: Erreur lors de la lecture du fichier: 'required_columns'
+2025-07-28 16:12:39 - ConfigManager - INFO - Configuration chargée depuis: config/default.json
+2025-07-28 16:12:39 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:12:39 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': 'config/default.json'}
+2025-07-28 16:12:39 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:12:39 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:12:39 - ComponentDataProcessor - ERROR - Validation du contenu échouée: Erreur lors de la lecture du fichier: 'required_columns'
+2025-07-28 16:14:18 - ConfigManager - INFO - Configuration chargée depuis: config/default.json
+2025-07-28 16:14:18 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:14:18 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': 'config/default.json'}
+2025-07-28 16:14:18 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:14:18 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:14:18 - ComponentDataProcessor - ERROR - Validation du contenu échouée: Colonne 'PN': 3 valeurs manquantes; Colonne 'Project': 2 valeurs manquantes; Ligne 6: PN: Format de numéro de pièce invalide; Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:14:43 - ConfigManager - INFO - Configuration chargée depuis: config/default.json
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': 'config/default.json'}
+2025-07-28 16:14:43 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:14:43 - ComponentDataProcessor - WARNING - Problèmes détectés dans le fichier: Colonne 'PN': 3 valeurs manquantes; Colonne 'Project': 2 valeurs manquantes; Ligne 6: PN: Format de numéro de pièce invalide; Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Le traitement continuera malgré ces problèmes
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Validation du fichier d'entrée réussie
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Chargement du fichier d'entrée: Sample_Input_Data.xlsx
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Sample_Input_Data.xlsx
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Fichier lu avec succès: 23 lignes, 9 colonnes
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Chargement du Master BOM: Master_BOM.xlsx
+2025-07-28 16:14:43 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Master_BOM.xlsx
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Fichier lu avec succès: 20 lignes, 10 colonnes
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Exclusion de 4 lignes avec valeurs critiques manquantes
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - === RÉSUMÉ DU NETTOYAGE ===
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Original Rows: 23
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Cleaned Rows: 19
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Excluded Rows: 4
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Normalized Values: 1
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Trimmed Values: 10
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Case Corrections: 24
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - ==============================
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Nettoyage des données: 23 → 19 (exclus: 4)
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Lookup: 12 matches, 7 misses
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Lookup terminé: 19 lignes traitées
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Application de la logique métier
+2025-07-28 16:14:44 - ComponentDataProcessor - INFO - Début du traitement des résultats de lookup
+2025-07-28 16:14:44 - ComponentDataProcessor - ERROR - Erreur lors du traitement: 'lookup_key'
+2025-07-28 16:15:34 - ConfigManager - INFO - Configuration chargée depuis: config/default.json
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': 'config/default.json'}
+2025-07-28 16:15:34 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:15:34 - ComponentDataProcessor - WARNING - Problèmes détectés dans le fichier: Colonne 'PN': 3 valeurs manquantes; Colonne 'Project': 2 valeurs manquantes; Ligne 6: PN: Format de numéro de pièce invalide; Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Le traitement continuera malgré ces problèmes
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Validation du fichier d'entrée réussie
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Chargement du fichier d'entrée: Sample_Input_Data.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Sample_Input_Data.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Fichier lu avec succès: 23 lignes, 9 colonnes
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Chargement du Master BOM: Master_BOM.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Master_BOM.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Fichier lu avec succès: 20 lignes, 10 colonnes
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Exclusion de 4 lignes avec valeurs critiques manquantes
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - === RÉSUMÉ DU NETTOYAGE ===
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Original Rows: 23
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Cleaned Rows: 19
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Excluded Rows: 4
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Normalized Values: 1
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Trimmed Values: 10
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Case Corrections: 24
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - ==============================
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Nettoyage des données: 23 → 19 (exclus: 4)
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Lookup: 12 matches, 7 misses
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Lookup terminé: 19 lignes traitées
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Application de la logique métier
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Début du traitement des résultats de lookup
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Ajout de 11 lignes additionnelles
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - === RÉSUMÉ DU TRAITEMENT ===
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Total Processed: 19
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Status D Updates: 4
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Status 0 Duplicates: 4
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Status Nan Unknowns: 7
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Status X Skipped: 1
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Lookup Matches: 12
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Lookup Misses: 7
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - ================================
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Écriture du fichier Excel formaté: output\Update_2025-07-28.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Fichier formaté écrit avec succès: 30 lignes
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Master_BOM_Updated_2025-07-28.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 20 lignes
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Clean_Excluded_2025-07-28.xlsx
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 4 lignes
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Rapport de résumé généré: output\Processing_Summary_2025-07-28.csv
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Génération des sorties terminée avec succès
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Traitement terminé avec succès
+2025-07-28 16:15:34 - ComponentDataProcessor - INFO - Traitement terminé: SUCCÈS (durée: 0.17s)
+2025-07-28 16:15:55 - Main - INFO - Validation de 1 fichier(s)
+2025-07-28 16:15:55 - Main - INFO - Validation: Sample_Input_Data.xlsx
+2025-07-28 16:15:55 - Main - ERROR -   Contenu invalide:
+2025-07-28 16:15:55 - Main - ERROR -     - Colonne 'PN': 3 valeurs manquantes
+2025-07-28 16:15:55 - Main - ERROR -     - Colonne 'Project': 2 valeurs manquantes
+2025-07-28 16:15:55 - Main - ERROR -     - Ligne 6: PN: Format de numéro de pièce invalide
+2025-07-28 16:15:55 - Main - ERROR -     - Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:16:13 - DataCleaner - INFO - Début du nettoyage des données
+2025-07-28 16:16:13 - DataCleaner - INFO - Suppression de 2 lignes vides
+2025-07-28 16:16:13 - DataCleaner - INFO - === RÉSUMÉ DU NETTOYAGE ===
+2025-07-28 16:16:13 - DataCleaner - INFO - Original Rows: 2
+2025-07-28 16:16:13 - DataCleaner - INFO - Cleaned Rows: 0
+2025-07-28 16:16:13 - DataCleaner - INFO - Excluded Rows: 2
+2025-07-28 16:16:13 - DataCleaner - INFO - Normalized Values: 0
+2025-07-28 16:16:13 - DataCleaner - INFO - Trimmed Values: 0
+2025-07-28 16:16:13 - DataCleaner - INFO - Case Corrections: 0
+2025-07-28 16:16:13 - DataCleaner - INFO - ==============================
+2025-07-28 16:16:13 - DataCleaner - INFO - Début du nettoyage des données
+2025-07-28 16:16:14 - DataCleaner - INFO - Début du nettoyage des données
+2025-07-28 16:16:14 - DataCleaner - INFO - === RÉSUMÉ DU NETTOYAGE ===
+2025-07-28 16:16:14 - DataCleaner - INFO - Original Rows: 2
+2025-07-28 16:16:14 - DataCleaner - INFO - Cleaned Rows: 2
+2025-07-28 16:16:14 - DataCleaner - INFO - Excluded Rows: 0
+2025-07-28 16:16:14 - DataCleaner - INFO - Normalized Values: 5
+2025-07-28 16:16:14 - DataCleaner - INFO - Trimmed Values: 0
+2025-07-28 16:16:14 - DataCleaner - INFO - Case Corrections: 2
+2025-07-28 16:16:14 - DataCleaner - INFO - ==============================
+2025-07-28 16:16:14 - LookupProcessor - INFO - Début du processus de lookup
+2025-07-28 16:16:14 - LookupProcessor - INFO - Lookup: 0 matches, 0 misses
+2025-07-28 16:16:14 - LookupProcessor - INFO - Lookup terminé: 0 lignes traitées
+2025-07-28 16:16:14 - LookupProcessor - INFO - Début du processus de lookup
+2025-07-28 16:16:14 - LookupProcessor - INFO - Lookup: 0 matches, 2 misses
+2025-07-28 16:16:14 - LookupProcessor - INFO - Lookup terminé: 2 lignes traitées
+2025-07-28 16:21:18 - ConfigManager - INFO - Configuration chargée depuis: config/production.json
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': 'config/production.json'}
+2025-07-28 16:21:18 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:21:18 - ComponentDataProcessor - WARNING - Problèmes détectés dans le fichier: Colonne 'PN': 3 valeurs manquantes; Colonne 'Project': 2 valeurs manquantes; Ligne 6: PN: Format de numéro de pièce invalide; Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Le traitement continuera malgré ces problèmes
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Validation du fichier d'entrée réussie
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Chargement du fichier d'entrée: Sample_Input_Data.xlsx
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Sample_Input_Data.xlsx
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Fichier lu avec succès: 23 lignes, 9 colonnes
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Chargement du Master BOM: Master_BOM.xlsx
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Master_BOM.xlsx
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Fichier lu avec succès: 20 lignes, 10 colonnes
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:21:18 - ComponentDataProcessor - INFO - Exclusion de 4 lignes avec valeurs critiques manquantes
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - === RÉSUMÉ DU NETTOYAGE ===
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Original Rows: 23
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Cleaned Rows: 19
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Excluded Rows: 4
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Normalized Values: 1
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Trimmed Values: 10
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Case Corrections: 24
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - ==============================
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Nettoyage des données: 23 → 19 (exclus: 4)
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Lookup: 12 matches, 7 misses
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Lookup terminé: 19 lignes traitées
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Application de la logique métier
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Début du traitement des résultats de lookup
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Ajout de 11 lignes additionnelles
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - === RÉSUMÉ DU TRAITEMENT ===
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Total Processed: 19
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Status D Updates: 4
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Status 0 Duplicates: 4
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Status Nan Unknowns: 7
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Status X Skipped: 1
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Lookup Matches: 12
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Lookup Misses: 7
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - ================================
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Écriture du fichier Excel formaté: output\Update_2025-07-28.xlsx
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Fichier formaté écrit avec succès: 30 lignes
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Master_BOM_Updated_2025-07-28.xlsx
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 20 lignes
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Clean_Excluded_2025-07-28.xlsx
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 4 lignes
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Rapport de résumé généré: output\Processing_Summary_2025-07-28.csv
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Génération des sorties terminée avec succès
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Traitement terminé avec succès
+2025-07-28 16:21:19 - ComponentDataProcessor - INFO - Traitement terminé: SUCCÈS (durée: 0.13s)
+2025-07-28 16:43:21 - Main - INFO - Création des fichiers d'exemple...
+2025-07-28 16:43:21 - Main - INFO - Création du Master BOM d'exemple...
+2025-07-28 16:43:21 - Main - INFO - Création des fichiers d'entrée d'exemple...
+2025-07-28 16:43:21 - Main - INFO - Fichiers d'exemple créés avec succès!
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': None}
+2025-07-28 16:43:33 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:43:33 - ComponentDataProcessor - WARNING - Problèmes détectés dans le fichier: Colonne 'PN': 3 valeurs manquantes; Colonne 'Project': 2 valeurs manquantes; Ligne 6: PN: Format de numéro de pièce invalide; Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Le traitement continuera malgré ces problèmes
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Validation du fichier d'entrée réussie
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Chargement du fichier d'entrée: Sample_Input_Data.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Sample_Input_Data.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Fichier lu avec succès: 23 lignes, 9 colonnes
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Chargement du Master BOM: Master_BOM.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Master_BOM.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Fichier lu avec succès: 20 lignes, 10 colonnes
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Exclusion de 4 lignes avec valeurs critiques manquantes
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - === RÉSUMÉ DU NETTOYAGE ===
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Original Rows: 23
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Cleaned Rows: 19
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Excluded Rows: 4
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Normalized Values: 1
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Trimmed Values: 9
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Case Corrections: 25
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - ==============================
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Nettoyage des données: 23 → 19 (exclus: 4)
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Lookup: 12 matches, 7 misses
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Lookup terminé: 19 lignes traitées
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Application de la logique métier
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Début du traitement des résultats de lookup
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Ajout de 11 lignes additionnelles
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - === RÉSUMÉ DU TRAITEMENT ===
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Total Processed: 19
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Status D Updates: 4
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Status 0 Duplicates: 4
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Status Nan Unknowns: 7
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Status X Skipped: 1
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Lookup Matches: 12
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Lookup Misses: 7
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - ================================
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Écriture du fichier Excel formaté: output\Update_2025-07-28.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Fichier formaté écrit avec succès: 30 lignes
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Master_BOM_Updated_2025-07-28.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 20 lignes
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Clean_Excluded_2025-07-28.xlsx
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 4 lignes
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Rapport de résumé généré: output\Processing_Summary_2025-07-28.csv
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Génération des sorties terminée avec succès
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Traitement terminé avec succès
+2025-07-28 16:43:33 - ComponentDataProcessor - INFO - Traitement terminé: SUCCÈS (durée: 0.15s)
+2025-07-28 16:48:52 - Main - INFO - Création des fichiers d'exemple...
+2025-07-28 16:48:52 - Main - INFO - Création du Master BOM d'exemple...
+2025-07-28 16:48:52 - Main - INFO - Création des fichiers d'entrée d'exemple...
+2025-07-28 16:48:52 - Main - INFO - Fichiers d'exemple créés avec succès!
+2025-07-28 16:50:31 - Main - INFO - Validation de 1 fichier(s)
+2025-07-28 16:50:31 - Main - INFO - Validation: Sample_Input_Data.xlsx
+2025-07-28 16:50:31 - Main - ERROR -   Contenu invalide:
+2025-07-28 16:50:31 - Main - ERROR -     - Colonne 'PN': 3 valeurs manquantes
+2025-07-28 16:50:31 - Main - ERROR -     - Colonne 'Project': 2 valeurs manquantes
+2025-07-28 16:50:31 - Main - ERROR -     - Ligne 6: PN: Format de numéro de pièce invalide
+2025-07-28 16:50:31 - Main - ERROR -     - Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - ComponentDataProcessor initialisé
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Configuration: {'master_bom_path': 'Master_BOM.xlsx', 'output_dir': 'output', 'log_level': 'INFO', 'required_columns': ['PN', 'Project'], 'backup_enabled': True, 'config_file': None}
+2025-07-28 16:50:57 - Main - INFO - Traitement du fichier: Sample_Input_Data.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Début du traitement: Sample_Input_Data.xlsx (0 lignes)
+2025-07-28 16:50:57 - ComponentDataProcessor - WARNING - Problèmes détectés dans le fichier: Colonne 'PN': 3 valeurs manquantes; Colonne 'Project': 2 valeurs manquantes; Ligne 6: PN: Format de numéro de pièce invalide; Ligne 7: PN: Format de numéro de pièce invalide
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Le traitement continuera malgré ces problèmes
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Validation du fichier d'entrée réussie
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Chargement du fichier d'entrée: Sample_Input_Data.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Sample_Input_Data.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Fichier lu avec succès: 23 lignes, 9 colonnes
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Chargement du Master BOM: Master_BOM.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Lecture du fichier Excel: Master_BOM.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Fichier lu avec succès: 20 lignes, 10 colonnes
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Début du nettoyage des données
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Exclusion de 4 lignes avec valeurs critiques manquantes
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - === RÉSUMÉ DU NETTOYAGE ===
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Original Rows: 23
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Cleaned Rows: 19
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Excluded Rows: 4
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Normalized Values: 1
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Trimmed Values: 10
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Case Corrections: 25
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - ==============================
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Nettoyage des données: 23 → 19 (exclus: 4)
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Début du processus de lookup
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Lookup: 12 matches, 7 misses
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Lookup terminé: 19 lignes traitées
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Application de la logique métier
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Début du traitement des résultats de lookup
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Ajout de 11 lignes additionnelles
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - === RÉSUMÉ DU TRAITEMENT ===
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Total Processed: 19
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Status D Updates: 4
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Status 0 Duplicates: 4
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Status Nan Unknowns: 7
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Status X Skipped: 1
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Lookup Matches: 12
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Lookup Misses: 7
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - ================================
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Écriture du fichier Excel formaté: output\Update_2025-07-28.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Fichier formaté écrit avec succès: 30 lignes
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Master_BOM_Updated_2025-07-28.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 20 lignes
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Écriture du fichier Excel: output\Clean_Excluded_2025-07-28.xlsx
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Fichier écrit avec succès: 4 lignes
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Rapport de résumé généré: output\Processing_Summary_2025-07-28.csv
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Génération des sorties terminée avec succès
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Traitement terminé avec succès
+2025-07-28 16:50:57 - ComponentDataProcessor - INFO - Traitement terminé: SUCCÈS (durée: 0.17s)

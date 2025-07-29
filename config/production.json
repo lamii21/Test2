@@ -1,0 +1,44 @@
+{
+  "processing": {
+    "required_columns": ["PN", "Project"],
+    "text_columns": ["PN", "Project", "Supplier", "Description"],
+    "convert_to_uppercase": true,
+    "remove_non_ascii": true,
+    "trim_whitespace": true,
+    "normalize_spaces": true,
+    "remove_empty_rows": true
+  },
+  "files": {
+    "master_bom_path": "Master_BOM.xlsx",
+    "output_dir": "output",
+    "backup_enabled": true,
+    "cleanup_old_files": false,
+    "cleanup_days": 30
+  },
+  "validation": {
+    "pn_pattern": "^[A-Z0-9\\-_]+$",
+    "max_pn_length": 50,
+    "max_project_length": 100,
+    "price_min": 0.0,
+    "price_max": 10000.0,
+    "valid_statuses": ["A", "D", "0", "X"]
+  },
+  "logging": {
+    "level": "INFO",
+    "log_to_console": true,
+    "log_to_file": true,
+    "log_file_pattern": "component_processor_{timestamp}.log"
+  },
+  "excel": {
+    "highlight_colors": {
+      "duplicate": "FFCCCC",
+      "updated": "FFFFCC",
+      "skipped": "E6E6E6",
+      "error": "FF9999",
+      "header": "4472C4"
+    },
+    "auto_adjust_columns": true,
+    "add_summary_sheet": true,
+    "freeze_header": true
+  }
+}

@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Aide - Component Data Processor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>Guide d'utilisation
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="nav flex-column nav-pills" role="tablist">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#getting-started">
+                                <i class="fas fa-play me-2"></i>Démarrage
+                            </button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#file-format">
+                                <i class="fas fa-file-excel me-2"></i>Format fichier
+                            </button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#processing">
+                                <i class="fas fa-cogs me-2"></i>Traitement
+                            </button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#troubleshooting">
+                                <i class="fas fa-wrench me-2"></i>Dépannage
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="getting-started">
+                                <h5><i class="fas fa-play me-2 text-primary"></i>Démarrage rapide</h5>
+                                
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-lightbulb me-2"></i>Première utilisation</h6>
+                                    <ol>
+                                        <li>Créez des fichiers d'exemple dans l'onglet "Exemples"</li>
+                                        <li>Testez le traitement avec Sample_Input_Data.xlsx</li>
+                                        <li>Consultez les résultats générés</li>
+                                        <li>Adaptez votre fichier selon le format requis</li>
+                                    </ol>
+                                </div>
+                                
+                                <h6>Workflow standard</h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="card border-primary">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-upload fa-2x text-primary mb-2"></i>
+                                                <h6>1. Upload</h6>
+                                                <p class="small">Téléchargez votre fichier Excel</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card border-success">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-cogs fa-2x text-success mb-2"></i>
+                                                <h6>2. Traitement</h6>
+                                                <p class="small">Traitement automatique</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="file-format">
+                                <h5><i class="fas fa-file-excel me-2 text-primary"></i>Format de fichier requis</h5>
+                                
+                                <div class="alert alert-warning">
+                                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Colonnes obligatoires</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>PN</strong> : Numéro de pièce (Part Number)</li>
+                                        <li><strong>Project</strong> : Nom du projet</li>
+                                    </ul>
+                                </div>
+                                
+                                <h6>Colonnes optionnelles</h6>
+                                <ul>
+                                    <li><strong>Price</strong> : Prix du composant</li>
+                                    <li><strong>Supplier</strong> : Fournisseur</li>
+                                    <li><strong>Description</strong> : Description du composant</li>
+                                    <li><strong>Status</strong> : Statut (A, D, 0, X)</li>
+                                </ul>
+                                
+                                <h6>Règles de format</h6>
+                                <ul>
+                                    <li>Première ligne = en-têtes de colonnes</li>
+                                    <li>Format Excel (.xlsx ou .xls)</li>
+                                    <li>Taille maximum : 100MB</li>
+                                    <li>Encodage : UTF-8 recommandé</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="processing">
+                                <h5><i class="fas fa-cogs me-2 text-primary"></i>Logique de traitement</h5>
+                                
+                                <h6>Étapes de traitement</h6>
+                                <div class="accordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#step1">
+                                                1. Nettoyage des données
+                                            </button>
+                                        </h2>
+                                        <div id="step1" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Suppression des lignes vides</li>
+                                                    <li>Normalisation des formats</li>
+                                                    <li>Conversion en majuscules</li>
+                                                    <li>Suppression des espaces superflus</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step2">
+                                                2. Lookup avec Master BOM
+                                            </button>
+                                        </h2>
+                                        <div id="step2" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li>Correspondance PN + Project</li>
+                                                    <li>Récupération du statut</li>
+                                                    <li>Identification des nouveaux composants</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step3">
+                                                3. Application logique métier
+                                            </button>
+                                        </h2>
+                                        <div id="step3" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                <ul>
+                                                    <li><strong>Status D</strong> → Mise à jour vers X (déprécié)</li>
+                                                    <li><strong>Status 0</strong> → Création ligne pour vérification</li>
+                                                    <li><strong>Status NaN</strong> → Nouveau composant potentiel</li>
+                                                    <li><strong>Status X</strong> → Ignoré (déjà ancien)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="troubleshooting">
+                                <h5><i class="fas fa-wrench me-2 text-primary"></i>Dépannage</h5>
+                                
+                                <div class="accordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#error1">
+                                                Erreur "Format de fichier non supporté"
+                                            </button>
+                                        </h2>
+                                        <div id="error1" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <p><strong>Solution :</strong></p>
+                                                <ul>
+                                                    <li>Vérifiez que le fichier est au format .xlsx ou .xls</li>
+                                                    <li>Évitez les fichiers .csv ou .txt</li>
+                                                    <li>Assurez-vous que le fichier n'est pas corrompu</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#error2">
+                                                Erreur "Colonnes manquantes"
+                                            </button>
+                                        </h2>
+                                        <div id="error2" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                <p><strong>Solution :</strong></p>
+                                                <ul>
+                                                    <li>Ajoutez les colonnes PN et Project</li>
+                                                    <li>Vérifiez l'orthographe des en-têtes</li>
+                                                    <li>Assurez-vous que la première ligne contient les en-têtes</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#error3">
+                                                Traitement lent ou bloqué
+                                            </button>
+                                        </h2>
+                                        <div id="error3" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                <p><strong>Solution :</strong></p>
+                                                <ul>
+                                                    <li>Vérifiez la taille du fichier (max 100MB)</li>
+                                                    <li>Réduisez le nombre de lignes si nécessaire</li>
+                                                    <li>Actualisez la page et réessayez</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mt-3">
+                                    <h6><i class="fas fa-life-ring me-2"></i>Besoin d'aide supplémentaire ?</h6>
+                                    <p class="mb-0">
+                                        Consultez la documentation complète ou créez des fichiers d'exemple 
+                                        pour mieux comprendre le format attendu.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
