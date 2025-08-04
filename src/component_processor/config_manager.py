@@ -108,14 +108,14 @@ class ConfigManager:
             'processing': asdict(ProcessingConfig(
                 required_columns=['PN', 'Project'],
                 text_columns=['PN', 'Project', 'Supplier', 'Description'],
-                convert_to_uppercase=True,
+                convert_to_uppercase=False,
                 remove_non_ascii=True,
                 trim_whitespace=True,
                 normalize_spaces=True,
                 remove_empty_rows=True
             )),
             'files': asdict(FileConfig(
-                master_bom_path='Master_BOM.xlsx',
+                master_bom_path='Master_BOM_Real.xlsx',
                 output_dir='output',
                 backup_enabled=True,
                 cleanup_old_files=False,

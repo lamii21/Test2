@@ -54,6 +54,11 @@ Exemples d'utilisation:
         '--output-dir', '-o',
         help='Répertoire de sortie personnalisé'
     )
+
+    parser.add_argument(
+        '--project-column', '-p',
+        help='Colonne de projet à utiliser dans le Master BOM (ex: "Project", "Ford_Project")'
+    )
     
     # Options de validation
     parser.add_argument(
@@ -201,6 +206,10 @@ def process_files(files: List[str], args, logger):
     try:
         # Initialiser le processeur
         processor = ComponentDataProcessor(args.config)
+
+        # Configurer la colonne de projet si spécifiée
+        if hasattr(args, 'project_column') and args.project_column:
+            processor.set_project_column(args.project_column)
         
         if len(files) == 1:
             # Traitement d'un seul fichier

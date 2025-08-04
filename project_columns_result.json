@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "columns": [
+    {
+      "name": "BX726_BEV_JOB1+90_YMOK",
+      "index": 2,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 

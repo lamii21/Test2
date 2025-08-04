@@ -2,14 +2,14 @@
   "processing": {
     "required_columns": ["PN", "Project"],
     "text_columns": ["PN", "Project", "Supplier", "Description"],
-    "convert_to_uppercase": true,
+    "convert_to_uppercase": false,
     "remove_non_ascii": true,
     "trim_whitespace": true,
     "normalize_spaces": true,
     "remove_empty_rows": true
   },
   "files": {
-    "master_bom_path": "Master_BOM.xlsx",
+    "master_bom_path": "Master_BOM_Real.xlsx",
     "output_dir": "output",
     "backup_enabled": true,
     "cleanup_old_files": false,

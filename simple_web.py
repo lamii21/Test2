@@ -6,9 +6,12 @@ Interface Web simple et fonctionnelle pour le Component Data Processor
 import os
 import subprocess
 import tempfile
+import re
+import sys
 from pathlib import Path
 from datetime import datetime
 from werkzeug.utils import secure_filename
+import pandas as pd
 
 from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for
 
@@ -16,7 +19,7 @@ from flask import Flask, render_template, request, jsonify, send_file, flash, re
 app = Flask(__name__, 
            template_folder='frontend/templates',
            static_folder='frontend/static')
-app.secret_key = 'component_processor_key'
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24).hex())
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 
 # Configuration
@@ -26,6 +29,22 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def validate_project_column(column_name: str) -> bool:
+    """Valide le nom de colonne de projet pour éviter l'injection."""
+    if not column_name:
+        return True
+    # Autoriser seulement lettres, chiffres, underscore, espaces, tirets
+    pattern = r'^[a-zA-Z0-9_\s\-]+$'
+    return bool(re.match(pattern, column_name)) and len(column_name) <= 100
+
+def validate_filename_safe(filename: str) -> bool:
+    """Valide le nom de fichier pour éviter path traversal."""
+    if not filename:
+        return False
+    # Interdire les caractères dangereux
+    dangerous_chars = ['..', '/', '\\', ':', '*', '?', '"', '<', '>', '|']
+    return not any(char in filename for char in dangerous_chars)
 
 @app.route('/')
 def index():
@@ -44,18 +63,56 @@ def upload_file():
             return redirect(request.url)
         
         if file and allowed_file(file.filename):
+            # Validation supplémentaire de la taille
+            if file.content_length and file.content_length > app.config['MAX_CONTENT_LENGTH']:
+                flash('Fichier trop volumineux (max 100MB)', 'error')
+                return redirect(request.url)
+
             filename = secure_filename(file.filename)
+            if not filename:
+                flash('Nom de fichier invalide', 'error')
+                return redirect(request.url)
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{timestamp}_{filename}"
             filepath = UPLOAD_FOLDER / filename
+
+            # Validation du chemin de destination
+            try:
+                filepath = filepath.resolve()
+                upload_folder_resolved = UPLOAD_FOLDER.resolve()
+                if not str(filepath).startswith(str(upload_folder_resolved)):
+                    flash('Chemin de fichier invalide', 'error')
+                    return redirect(request.url)
+            except Exception:
+                flash('Erreur de validation du fichier', 'error')
+                return redirect(request.url)
+
             file.save(filepath)
             
             try:
+                # Construire la commande avec le bon interpréteur Python
+                python_exe = sys.executable  # Utilise le même Python que le serveur web
+                cmd = [python_exe, 'runner.py', 'process', str(filepath)]
+
+                # Ajouter la colonne de projet si spécifiée (avec validation)
+                project_column = request.form.get('project_column')
+                if project_column and project_column.strip():
+                    project_column_clean = project_column.strip()
+                    if validate_project_column(project_column_clean):
+                        cmd.extend(['--project-column', project_column_clean])
+                    else:
+                        flash('Nom de colonne de projet invalide', 'error')
+                        return redirect(request.url)
+
+                # Timeout configurable via variable d'environnement
+                timeout = int(os.environ.get('PROCESSING_TIMEOUT', '300'))
+
                 result = subprocess.run(
-                    ['python', 'runner.py', 'process', str(filepath)],
+                    cmd,
                     capture_output=True,
                     text=True,
-                    timeout=300
+                    timeout=timeout
                 )
                 
                 print(f"Code de retour: {result.returncode}")
@@ -194,7 +251,7 @@ def create_samples():
             print("🔄 Début de création des exemples via interface web...")
 
             result = subprocess.run(
-                ['python', 'runner.py', 'samples'],
+                [sys.executable, 'runner.py', 'samples'],
                 capture_output=True,
                 text=True,
                 timeout=120,  # Augmenter le timeout
@@ -252,20 +309,44 @@ def create_samples():
 @app.route('/download/<filename>')
 def download_file(filename):
     try:
+        # Validation de sécurité
+        if not validate_filename_safe(filename):
+            flash('Nom de fichier invalide', 'error')
+            return redirect(url_for('index'))
+
+        # Sécuriser le nom de fichier
+        safe_filename = secure_filename(filename)
+        if not safe_filename:
+            flash('Nom de fichier invalide', 'error')
+            return redirect(url_for('index'))
+
         # Chercher d'abord dans le dossier output
         output_dir = Path('output')
-        file_path = output_dir / filename
+        file_path = output_dir / safe_filename
 
-        if file_path.exists():
+        # Vérifier que le chemin résolu est bien dans output
+        try:
+            file_path = file_path.resolve()
+            output_dir = output_dir.resolve()
+            if not str(file_path).startswith(str(output_dir)):
+                flash('Accès non autorisé', 'error')
+                return redirect(url_for('index'))
+        except Exception:
+            flash('Chemin de fichier invalide', 'error')
+            return redirect(url_for('index'))
+
+        if file_path.exists() and file_path.is_file():
             return send_file(file_path, as_attachment=True)
 
-        # Si pas trouvé, chercher dans le répertoire racine (pour Master_BOM.xlsx, etc.)
-        root_file_path = Path(filename)
-        if root_file_path.exists():
-            return send_file(root_file_path, as_attachment=True)
+        # Si pas trouvé, chercher dans une liste blanche de fichiers autorisés
+        allowed_root_files = ['Master_BOM.xlsx', 'Sample_Input_Data.xlsx']
+        if safe_filename in allowed_root_files:
+            root_file_path = Path(safe_filename)
+            if root_file_path.exists() and root_file_path.is_file():
+                return send_file(root_file_path, as_attachment=True)
 
         # Fichier non trouvé
-        flash(f'Fichier non trouvé: {filename}', 'error')
+        flash(f'Fichier non trouvé: {safe_filename}', 'error')
         return redirect(url_for('index'))
 
     except Exception as e:
@@ -300,7 +381,7 @@ def api_files():
         output_dir = Path('output')
         if not output_dir.exists():
             return jsonify({'files': []})
-        
+
         files = []
         for file_path in output_dir.glob('*'):
             if file_path.is_file():
@@ -311,11 +392,123 @@ def api_files():
                     'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
                     'download_url': url_for('download_file', filename=file_path.name)
                 })
-        
+
         files.sort(key=lambda x: x['modified'], reverse=True)
         return jsonify({'files': files})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/project-columns')
+def api_project_columns():
+    """Récupère les colonnes de projet disponibles dans le Master BOM (colonnes 2 à 23)."""
+    try:
+        # Lire le Master BOM - utiliser le chemin depuis config.py
+        import os
+        import sys
+
+        # Ajouter le répertoire racine au path pour importer config
+        current_dir = Path(__file__).parent
+        if str(current_dir) not in sys.path:
+            sys.path.insert(0, str(current_dir))
+
+        try:
+            from config import Config
+            config = Config()
+            master_bom_path = Path(config.master_bom_file)
+        except Exception as e:
+            # Fallback vers le chemin direct
+            master_bom_path = Path(__file__).parent / 'Master_BOM_Real.xlsx'
+
+        if not master_bom_path.exists():
+            return jsonify({
+                'success': False,
+                'message': f'Master BOM non trouvé: {master_bom_path.absolute()}',
+                'columns': []
+            })
+
+        df = pd.read_excel(master_bom_path)
+
+        # Récupérer les colonnes 2 à 23 (index 1 à 22)
+        project_columns = []
+        start_col = 1  # Colonne 2 (index 1)
+        end_col = min(23, len(df.columns))  # Colonne 23 ou dernière colonne disponible
+
+        for i in range(start_col, end_col):
+            col = df.columns[i]
+            unique_values = df[col].nunique()
+            sample_values = df[col].dropna().head(3).tolist()
+
+            # Compter les valeurs non-nulles
+            non_null_count = df[col].notna().sum()
+
+            # Vérifier si c'est une colonne de statut (contient A, D, X, 0)
+            status_values = set(['A', 'D', 'X', '0'])
+            col_values = set(df[col].dropna().astype(str).unique())
+            is_status_column = bool(status_values.intersection(col_values))
+
+            project_columns.append({
+                'name': col,
+                'index': int(i + 1),  # Position de la colonne (1-based)
+                'unique_values': int(unique_values),
+                'sample_values': sample_values,
+                'non_null_count': int(non_null_count),
+                'total_rows': int(len(df)),
+                'is_status_column': is_status_column,
+                'fill_percentage': round((non_null_count / len(df)) * 100, 1)
+            })
+
+        return jsonify({
+            'success': True,
+            'columns': project_columns,
+            'message': f'{len(project_columns)} colonnes de projet trouvées (colonnes 2 à {end_col})'
+        })
+
+    except FileNotFoundError:
+        return jsonify({
+            'success': False,
+            'message': 'Master BOM non trouvé',
+            'columns': []
+        })
+    except pd.errors.EmptyDataError:
+        return jsonify({
+            'success': False,
+            'message': 'Master BOM vide ou corrompu',
+            'columns': []
+        })
+    except Exception as e:
+        print(f"Erreur lors de la récupération des colonnes: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Erreur interne du serveur',
+            'columns': []
+        })
+
+@app.route('/health')
+def health_check():
+    """Endpoint de santé pour monitoring."""
+    try:
+        import shutil
+        checks = {
+            'master_bom_accessible': Path('Master_BOM.xlsx').exists(),
+            'output_dir_writable': os.access('output', os.W_OK),
+            'config_exists': Path('config/default.json').exists(),
+            'disk_space_mb': shutil.disk_usage('.').free // (1024*1024)
+        }
+
+        all_healthy = all(checks.values()) and checks['disk_space_mb'] > 100
+        status_code = 200 if all_healthy else 503
+
+        return jsonify({
+            'status': 'healthy' if all_healthy else 'unhealthy',
+            'checks': checks,
+            'timestamp': datetime.now().isoformat()
+        }), status_code
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 @app.route('/help')
 def help_page():

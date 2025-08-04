@@ -63,9 +63,22 @@ class ComponentDataProcessor:
             'error_count': 0
         }
         
+        # Configuration dynamique
+        self.project_column = None  # Colonne de projet personnalisée
+
         self.logger.info("ComponentDataProcessor initialisé")
         self.logger.info(f"Configuration: {self.config_manager.get_summary()}")
-    
+
+    def set_project_column(self, column_name: str):
+        """
+        Définit la colonne de projet à utiliser dans le Master BOM.
+
+        Args:
+            column_name: Nom de la colonne de projet dans le Master BOM
+        """
+        self.project_column = column_name
+        self.logger.info(f"Colonne de projet configurée: {column_name}")
+
     def process_file(self, input_file_path: str) -> bool:
         """
         Traite un fichier d'entrée complet.
@@ -226,7 +239,7 @@ class ComponentDataProcessor:
         
         # Effectuer le lookup
         self.logger.info("Début du processus de lookup")
-        lookup_df = self.lookup_processor.perform_lookup(cleaned_df, master_bom)
+        lookup_df = self.lookup_processor.perform_lookup(cleaned_df, master_bom, self.project_column)
         
         # Traiter les résultats selon la logique métier
         self.logger.info("Application de la logique métier")
@@ -348,6 +361,9 @@ class ComponentDataProcessor:
         # Performances
         print(f"Durée totale: {self.global_stats['total_duration']:.2f}s")
         print("="*60)
+
+        # TODO: Afficher les KPIs de Status (nécessite processed_df)
+        # self._display_status_kpis(processed_df)
     
     def process_multiple_files(self, file_paths: list) -> Dict[str, bool]:
         """
@@ -382,3 +398,33 @@ class ComponentDataProcessor:
     def get_global_statistics(self) -> Dict[str, Any]:
         """Retourne les statistiques globales."""
         return self.global_stats.copy()
+
+    def _display_status_kpis(self, df):
+        """Affiche les KPIs de Status comme dans Streamlit."""
+        if 'Status' not in df.columns:
+            return
+
+        print("\n" + "="*60)
+        print("ACTIVATION STATUS KPIs")
+        print("="*60)
+
+        # Compter les valeurs de Status
+        status_counts = df['Status'].value_counts()
+        na_count = df['Status'].isna().sum()
+        total_records = len(df)
+
+        # Afficher les métriques
+        print(f"Total Records: {total_records}")
+        print(f"Status '0' (Doublon): {status_counts.get('0', 0)}")
+        print(f"Status 'A' (Actif): {status_counts.get('A', 0)}")
+        print(f"Status 'D' (Deprecie): {status_counts.get('D', 0)}")
+        print(f"Status 'X' (Ancien): {status_counts.get('X', 0)}")
+        print(f"Not Found (NaN): {na_count}")
+
+        # Pourcentages
+        print("\nPourcentages:")
+        if total_records > 0:
+            print(f"Trouves dans Master BOM: {((total_records - na_count) / total_records * 100):.1f}%")
+            print(f"Nouveaux composants: {(na_count / total_records * 100):.1f}%")
+
+        print("="*60)

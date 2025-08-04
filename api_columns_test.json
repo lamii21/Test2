@@ -1,0 +1,314 @@
+{
+  "success": true,
+  "columns": [
+    {
+      "name": "BX726_BEV_JOB1+90_YMOK",
+      "index": 2,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 419,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 9.7
+    },
+    {
+      "name": "BX726_BEV_JOB1+90_YRL",
+      "index": 3,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "D",
+        "X"
+      ],
+      "non_null_count": 890,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 20.6
+    },
+    {
+      "name": "BX726_MCA_JOB1+90_YMOK",
+      "index": 4,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "D",
+        "X"
+      ],
+      "non_null_count": 359,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 8.3
+    },
+    {
+      "name": "BX726_MCA_JOB1+90_YRL",
+      "index": 5,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 1138,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 26.4
+    },
+    {
+      "name": "BX726_GSR_TT_YMOK",
+      "index": 6,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 165,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 3.8
+    },
+    {
+      "name": "BX726_GSR_TT_YRL",
+      "index": 7,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 769,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 17.8
+    },
+    {
+      "name": "CX482_24MY_YBE",
+      "index": 8,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 199,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 4.6
+    },
+    {
+      "name": "V710_B1_W2_HV_JOB1+90_YBE",
+      "index": 9,
+      "unique_values": 1,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 240,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 5.6
+    },
+    {
+      "name": "V710_JOB1+90_YMO-K",
+      "index": 10,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "D",
+        "X"
+      ],
+      "non_null_count": 1796,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 41.6
+    },
+    {
+      "name": "V710_JOB1+90_YOT-G",
+      "index": 11,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 542,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 12.6
+    },
+    {
+      "name": "V710_JOB1+90_YOT-K",
+      "index": 12,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 884,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 20.5
+    },
+    {
+      "name": "V710_JOB1+90_YWTT",
+      "index": 13,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 860,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 19.9
+    },
+    {
+      "name": "V710_B2_J74_JOB1+90_YMOK",
+      "index": 14,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "D",
+        "X"
+      ],
+      "non_null_count": 1515,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 35.1
+    },
+    {
+      "name": "V710_B2_J74_JOB1+90_YOT-G",
+      "index": 15,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 942,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 21.8
+    },
+    {
+      "name": "V710_B2_J74_JOB1+90_YOT-K",
+      "index": 16,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "D",
+        "X"
+      ],
+      "non_null_count": 881,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 20.4
+    },
+    {
+      "name": "V710_B2_J74_JOB1+90_YWTT",
+      "index": 17,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 1129,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 26.2
+    },
+    {
+      "name": "V710_HV_AWD_TT_YBE",
+      "index": 18,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 165,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 3.8
+    },
+    {
+      "name": "V710_AWD_PP_YMOK",
+      "index": 19,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 296,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 6.9
+    },
+    {
+      "name": "V710_AWD_TT_YOTG",
+      "index": 20,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 135,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 3.1
+    },
+    {
+      "name": "V710_AWD_PP_YOTK",
+      "index": 21,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 653,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 15.1
+    },
+    {
+      "name": "V710_AWD_PP_YWTT",
+      "index": 22,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "X",
+        "X"
+      ],
+      "non_null_count": 1142,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 26.5
+    },
+    {
+      "name": "FORD_V769_JOB1+180_HV_YRL",
+      "index": 23,
+      "unique_values": 2,
+      "sample_values": [
+        "X",
+        "D",
+        "X"
+      ],
+      "non_null_count": 136,
+      "total_rows": 4313,
+      "is_status_column": true,
+      "fill_percentage": 3.2
+    }
+  ],
+  "message": "22 colonnes de projet trouvées (colonnes 2 à 23)"
+}

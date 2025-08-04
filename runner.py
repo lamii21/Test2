@@ -61,17 +61,19 @@ class ComponentProcessorRunner:
         print("Creation des fichiers d'exemple...")
         return self.run_command(f"{self.python_cmd} main.py --create-samples")
     
-    def process(self, input_file, config=None, verbose=False, validate_only=False):
+    def process(self, input_file, config=None, verbose=False, validate_only=False, project_column=None):
         """Traite un fichier."""
         cmd = f"{self.python_cmd} main.py {input_file}"
-        
+
         if config:
             cmd += f" --config {config}"
         if verbose:
             cmd += " --verbose"
         if validate_only:
             cmd += " --validate-only"
-        
+        if project_column:
+            cmd += f" --project-column \"{project_column}\""
+
         print(f"Traitement: {input_file}")
         return self.run_command(cmd)
     
@@ -246,6 +248,7 @@ Exemples:
     parser.add_argument('--module', '-m', help='Module de test spécifique')
     parser.add_argument('--serve', action='store_true', help='Servir la documentation')
     parser.add_argument('--template', '-t', default='default', help='Template de configuration')
+    parser.add_argument('--project-column', '-p', help='Colonne de projet dans Master BOM')
     
     args = parser.parse_args()
     runner = ComponentProcessorRunner()
@@ -261,7 +264,7 @@ Exemples:
         if not args.args:
             print("❌ Fichier d'entrée requis")
             sys.exit(1)
-        runner.process(args.args[0], args.config, args.verbose)
+        runner.process(args.args[0], args.config, args.verbose, project_column=getattr(args, 'project_column', None))
     
     elif args.command == 'batch':
         if not args.args:

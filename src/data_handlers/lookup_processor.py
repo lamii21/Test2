@@ -38,35 +38,113 @@ class LookupProcessor:
         # Lignes additionnelles créées
         self.additional_rows = []
     
-    def perform_lookup(self, input_df: pd.DataFrame, master_bom: pd.DataFrame) -> pd.DataFrame:
+    def perform_lookup(self, input_df: pd.DataFrame, master_bom: pd.DataFrame, project_column: str = None) -> pd.DataFrame:
         """
-        Effectue le lookup entre les données d'entrée et le Master BOM.
-        
+        Effectue le lookup entre les données d'entrée et le Master BOM - Style VLOOKUP simple.
+
         Args:
             input_df: DataFrame des données d'entrée nettoyées
             master_bom: DataFrame du Master BOM
-            
+
         Returns:
-            DataFrame avec les résultats du lookup
+            DataFrame avec les résultats du lookup et colonne Status ajoutée
         """
         self.logger.info("Début du processus de lookup")
-        
+
         # Réinitialiser les statistiques
         self._reset_stats()
-        
-        # Créer les clés de lookup
-        input_df = self._create_lookup_keys(input_df)
-        master_bom = self._create_lookup_keys(master_bom)
-        
-        # Effectuer le merge
-        lookup_result = self._perform_merge(input_df, master_bom)
-        
+
+        # Créer une copie pour éviter de modifier l'original
+        result_df = input_df.copy()
+
+        # Déterminer la colonne de projet à utiliser
+        master_project_col = project_column if project_column else 'Project'
+
+        # Configuration du lookup - la colonne de statut est la colonne de projet sélectionnée
+        lookup_col = master_project_col  # Colonne à récupérer du Master BOM
+
+        # Vérifier que la colonne existe dans le Master BOM
+        if master_project_col not in master_bom.columns:
+            available_cols = [col for col in master_bom.columns if 'project' in col.lower() or 'ford' in col.lower()]
+            if available_cols:
+                master_project_col = available_cols[0]
+                self.logger.info(f"Colonne '{project_column}' non trouvée, utilisation de '{master_project_col}'")
+            else:
+                master_project_col = 'Project'  # Fallback
+                self.logger.warning(f"Aucune colonne de projet trouvée, utilisation de '{master_project_col}'")
+
+        # Créer les clés composites PN + Project
+        self.logger.info(f"Création des clés de lookup PN + {master_project_col}...")
+
+        # Clé composite pour votre fichier
+        input_lookup_key = (input_df['PN'].astype(str) + '|' +
+                           input_df['Project'].astype(str))
+
+        # Déterminer la colonne PN dans le Master BOM
+        master_pn_col = 'PN'
+        if 'PN' not in master_bom.columns:
+            pn_columns = ['Yazaki PN', 'YAZAKI PN', 'yazaki pn']
+            for col in pn_columns:
+                if col in master_bom.columns:
+                    master_pn_col = col
+                    break
+
+        self.logger.info(f"Colonne PN du Master BOM: {master_pn_col}")
+
+        # Clé composite pour Master BOM avec la colonne sélectionnée
+        master_lookup_key = (master_bom[master_pn_col].astype(str) + '|' +
+                            master_bom[master_project_col].astype(str))
+
+        # Supprimer les doublons du Master BOM (garder le premier comme VLOOKUP)
+        master_bom_with_key = master_bom.copy()
+        master_bom_with_key['lookup_key'] = master_lookup_key
+        master_clean = master_bom_with_key.drop_duplicates(subset=['lookup_key'], keep='first')
+
+        # Créer le dictionnaire de lookup, remplacer NULL par "0"
+        lookup_series = master_clean[lookup_col].fillna("0")
+        lookup_dict = pd.Series(lookup_series.values, index=master_clean['lookup_key']).to_dict()
+
+        self.logger.info(f"Lookup Info: {len(lookup_dict)} unique master records available for lookup (PN + Project)")
+
+        # Effectuer le mapping VLOOKUP-style (les clés non trouvées seront NaN)
+        status_mapping = input_lookup_key.map(lookup_dict)
+
+        # Compter les résultats du mapping
+        mapped_count = status_mapping.notna().sum()
+        unmapped_count = status_mapping.isna().sum()
+
+        self.logger.info(f"Mapping Results: {mapped_count}/{len(result_df)} records successfully mapped")
+
+        # Mettre à jour les statistiques
+        self.processing_stats['lookup_matches'] = mapped_count
+        self.processing_stats['lookup_misses'] = unmapped_count
+
+        # Ajouter la colonne Status en position 2 (après PN et Project)
+        if 'Status' in result_df.columns:
+            result_df['Status'] = status_mapping
+        else:
+            insert_position = min(2, len(result_df.columns))
+            result_df.insert(insert_position, 'Status', status_mapping)
+
+        # Optionnel: Ajouter d'autres colonnes du Master BOM si disponibles
+        additional_columns = ['Price', 'Supplier', 'Description']
+        for col in additional_columns:
+            if col in master_clean.columns and col not in result_df.columns:
+                # Créer le lookup pour cette colonne
+                col_lookup_series = master_clean[col].fillna("")
+                col_lookup_dict = pd.Series(col_lookup_series.values, index=master_clean['lookup_key']).to_dict()
+                col_mapping = input_lookup_key.map(col_lookup_dict)
+                result_df[col] = col_mapping
+
+        # Ajouter la colonne lookup_key pour compatibilité
+        result_df['lookup_key'] = input_lookup_key
+
         # Ajouter les colonnes de traitement
-        lookup_result = self._add_processing_columns(lookup_result)
-        
-        self.logger.info(f"Lookup terminé: {len(lookup_result)} lignes traitées")
-        
-        return lookup_result
+        result_df = self._add_processing_columns(result_df)
+
+        self.logger.info(f"Lookup terminé: {len(result_df)} lignes traitées")
+
+        return result_df
     
     def process_lookup_results(self, df: pd.DataFrame, master_bom: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
@@ -84,9 +162,8 @@ class LookupProcessor:
         # Réinitialiser les lignes additionnelles
         self.additional_rows = []
 
-        # S'assurer que le master_bom a les clés de lookup
-        if 'lookup_key' not in master_bom.columns:
-            master_bom = self._create_lookup_keys(master_bom)
+        # Note: Les clés de lookup sont déjà créées dans perform_lookup()
+        # Pas besoin de les recréer ici
 
         # Traiter chaque ligne selon son statut
         for idx, row in df.iterrows():
@@ -289,38 +366,48 @@ class LookupProcessor:
     def validate_master_bom(self, master_bom: pd.DataFrame) -> Tuple[bool, List[str]]:
         """
         Valide la structure du Master BOM.
-        
+
         Args:
             master_bom: DataFrame du Master BOM
-            
+
         Returns:
             Tuple (is_valid, list_of_errors)
         """
         errors = []
-        
-        # Vérifier les colonnes requises
-        required_cols = ['PN', 'Project', 'Status']
-        missing_cols = set(required_cols) - set(master_bom.columns)
-        
-        if missing_cols:
-            errors.append(f"Colonnes manquantes dans Master BOM: {list(missing_cols)}")
-        
+
         # Vérifier qu'il n'est pas vide
         if master_bom.empty:
             errors.append("Master BOM vide")
-        
-        # Vérifier les doublons de clés
-        if 'PN' in master_bom.columns and 'Project' in master_bom.columns:
-            master_bom_temp = master_bom.copy()
-            master_bom_temp['lookup_key'] = (
-                master_bom_temp['PN'].astype(str) + '_' + 
-                master_bom_temp['Project'].astype(str)
-            )
-            
-            duplicates = master_bom_temp['lookup_key'].duplicated().sum()
-            if duplicates > 0:
-                errors.append(f"Doublons détectés dans Master BOM: {duplicates}")
-        
+            return False, errors
+
+        # Vérifier la colonne PN (peut être 'PN' ou 'Yazaki PN')
+        pn_columns = ['PN', 'Yazaki PN', 'YAZAKI PN', 'yazaki pn']
+        pn_col_found = any(col in master_bom.columns for col in pn_columns)
+
+        if not pn_col_found:
+            errors.append(f"Aucune colonne PN trouvée. Colonnes recherchées: {pn_columns}")
+
+        # Vérifier qu'il y a au moins une colonne de projet (colonnes 2-23 ou colonnes contenant des statuts)
+        project_columns = []
+        status_values = {'A', 'D', 'X', '0'}
+
+        for col in master_bom.columns[1:]:  # Ignorer la première colonne (PN)
+            if col in pn_columns:
+                continue
+            # Vérifier si la colonne contient des valeurs de statut
+            col_values = set(master_bom[col].dropna().astype(str).unique())
+            if status_values.intersection(col_values):
+                project_columns.append(col)
+
+        if not project_columns:
+            errors.append("Aucune colonne de projet avec statuts (A, D, X, 0) trouvée")
+        else:
+            self.logger.info(f"Colonnes de projet détectées: {len(project_columns)} colonnes")
+
+        # Note: Les doublons dans le Master BOM sont autorisés
+        # Ils sont gérés par le système avec Status '0' (doublon détecté)
+        # Pas de validation des doublons ici
+
         return len(errors) == 0, errors
     
     def create_lookup_summary(self, df: pd.DataFrame) -> Dict[str, Any]:

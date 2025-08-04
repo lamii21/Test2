@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Path to the Master BOM file (Excel format)
 # This should be the reference file containing all component data with status information
-MASTER_BOM_PATH = "Master_BOM.xlsx"
+MASTER_BOM_PATH = "Master_BOM_Real.xlsx"
 
 # Output directory for processed files
 # All generated files will be saved in this directory
@@ -47,7 +47,7 @@ REQUIRED_COLUMNS = ['PN', 'Project']
 TEXT_COLUMNS = ['PN', 'Project', 'Supplier', 'Description']
 
 # Whether to convert text to uppercase during cleaning
-CONVERT_TO_UPPERCASE = True
+CONVERT_TO_UPPERCASE = False
 
 # Whether to remove non-ASCII characters during text normalization
 REMOVE_NON_ASCII = True

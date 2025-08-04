@@ -60,7 +60,26 @@
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Sélection de la colonne de projet -->
+                    <div class="mb-4">
+                        <label for="project_column" class="form-label">
+                            <i class="fas fa-columns me-2"></i>Colonne de projet dans Master BOM
+                        </label>
+                        <div class="input-group">
+                            <select class="form-select" id="project_column" name="project_column">
+                                <option value="">Project (par défaut)</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-info" onclick="loadProjectColumns()">
+                                <i class="fas fa-refresh me-1"></i>Charger
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Sélectionnez la colonne de projet à utiliser pour le lookup avec votre Master BOM
+                        </div>
+                    </div>
+
                     <!-- Boutons d'action -->
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                         <button type="button" class="btn btn-outline-primary me-md-2" id="validate-btn" disabled>
@@ -305,7 +324,58 @@
         validationContent.innerHTML = html;
         validationResults.classList.remove('d-none');
     }
-    
+
+    // Fonction pour charger les colonnes de projet disponibles
+    function loadProjectColumns() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Chargement...';
+        button.disabled = true;
+
+        fetch('/api/project-columns')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('project_column');
+
+                // Vider les options existantes (sauf la première)
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+
+                if (data.success && data.columns.length > 0) {
+                    data.columns.forEach(column => {
+                        const option = document.createElement('option');
+                        option.value = column.name;
+                        option.textContent = `${column.name} (${column.unique_values} valeurs, ${column.compatible ? '✅' : '❌'})`;
+                        select.appendChild(option);
+                    });
+
+                    // Sélectionner automatiquement la colonne recommandée
+                    const recommended = data.columns.find(col => col.recommended);
+                    if (recommended) {
+                        select.value = recommended.name;
+                    }
+
+                    // Afficher un message de succès
+                    const formText = select.parentElement.nextElementSibling;
+                    formText.innerHTML = `<i class="fas fa-check-circle me-1 text-success"></i>${data.columns.length} colonnes trouvées. ${recommended ? `Recommandé: ${recommended.name}` : ''}`;
+                } else {
+                    // Afficher un message d'erreur
+                    const formText = select.parentElement.nextElementSibling;
+                    formText.innerHTML = `<i class="fas fa-exclamation-triangle me-1 text-warning"></i>${data.message || 'Aucune colonne de projet trouvée'}`;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                const formText = document.getElementById('project_column').parentElement.nextElementSibling;
+                formText.innerHTML = `<i class="fas fa-times-circle me-1 text-danger"></i>Erreur lors du chargement des colonnes`;
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+    }
+
     // Soumission du formulaire
     uploadForm.addEventListener('submit', function(e) {
         e.preventDefault();
