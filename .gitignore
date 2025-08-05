@@ -19,86 +19,29 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Virtual environments
-venv/
-env/
-ENV/
+# Virtual Environment
 .venv/
-.env/
+venv/
+ENV/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # Logs
 *.log
-logs/
 
-# Output files
+# Output files (keep directory structure)
 output/*.xlsx
 output/*.csv
-!output/.gitkeep
 
 # Uploads
-frontend/uploads/*.xlsx
-frontend/uploads/*.csv
+frontend/uploads/*
 !frontend/uploads/.gitkeep
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp
-temp/
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# PEP 582
-__pypackages__/
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/

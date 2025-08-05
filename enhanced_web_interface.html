@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Data Processor v2.0 - Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .results {
+            background: white;
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .success {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .columns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .column-card {
+            background: white;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+        
+        .column-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .column-card.project-column {
+            border-color: #27ae60;
+            background: #f8fff8;
+        }
+        
+        .column-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .column-stats {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #27ae60);
+            transition: width 0.3s;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .suggestion-box {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .suggestion-title {
+            font-weight: 600;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+        
+        .confidence-badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Component Data Processor v2.0</h1>
+            <p>Enhanced with ETL-Automated-Tool Logic</p>
+        </div>
+        
+        <div class="content">
+            <!-- Section 1: Suggestion de Colonne Intelligente -->
+            <div class="section">
+                <h2>🎯 Suggestion de Colonne Intelligente</h2>
+                <div class="form-group">
+                    <label for="projectHint">Nom du Projet (ex: FORD_J74_V710_B2_PP_YOTK_00000):</label>
+                    <input type="text" id="projectHint" placeholder="Entrez le nom de votre projet...">
+                </div>
+                <button class="btn btn-warning" onclick="suggestColumn()">🔍 Suggérer une Colonne</button>
+                <button class="btn btn-success" onclick="findBestColumn()">⭐ Trouver la Meilleure Colonne</button>
+                
+                <div id="suggestionResult"></div>
+            </div>
+            
+            <!-- Section 2: Analyse des Colonnes de Projets -->
+            <div class="section">
+                <h2>📊 Analyse des Colonnes de Projets</h2>
+                <button class="btn" onclick="loadProjectColumns()">📈 Charger l'Analyse Complète</button>
+                
+                <div id="columnsAnalysis"></div>
+            </div>
+            
+            <!-- Section 3: Upload et Traitement -->
+            <div class="section">
+                <h2>📁 Upload et Traitement de Fichier</h2>
+                <div class="form-group">
+                    <label for="fileInput">Sélectionner un fichier Excel:</label>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls">
+                </div>
+                <div class="form-group">
+                    <label for="selectedColumn">Colonne de Projet Sélectionnée:</label>
+                    <select id="selectedColumn">
+                        <option value="">-- Sélectionner une colonne --</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="uploadAndProcess()">🚀 Uploader et Traiter</button>
+                
+                <div id="processResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        async function suggestColumn() {
+            const projectHint = document.getElementById('projectHint').value;
+            if (!projectHint.trim()) {
+                alert('Veuillez entrer un nom de projet');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/suggest-column`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input_name: projectHint })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const confidence = Math.round(data.confidence * 100);
+                    document.getElementById('suggestionResult').innerHTML = `
+                        <div class="suggestion-box">
+                            <div class="suggestion-title">💡 Suggestion de Colonne</div>
+                            <p><strong>Colonne suggérée:</strong> ${data.suggested_column}</p>
+                            <p><strong>Confiance:</strong> <span class="confidence-badge">${confidence}%</span></p>
+                            <p><strong>Entrée:</strong> ${data.input_name}</p>
+                        </div>
+                    `;
+                    
+                    // Mettre à jour la sélection
+                    const select = document.getElementById('selectedColumn');
+                    select.innerHTML = `<option value="${data.suggested_column}" selected>${data.suggested_column}</option>`;
+                } else {
+                    throw new Error(data.message || 'Erreur lors de la suggestion');
+                }
+            } catch (error) {
+                document.getElementById('suggestionResult').innerHTML = `
+                    <div class="error">Erreur: ${error.message}</div>
+                `;
+            }
+        }
+        
+        async function findBestColumn() {
+            const projectHint = document.getElementById('projectHint').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/find-best-project-column`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_hint: projectHint })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const confidence = Math.round(data.confidence * 100);
+                    const topColumns = data.analysis.columns_analysis.slice(0, 5);
+                    
+                    let html = `
+                        <div class="suggestion-box">
+                            <div class="suggestion-title">⭐ Meilleure Colonne Trouvée</div>
+                            <p><strong>Colonne recommandée:</strong> ${data.best_column}</p>
+                            <p><strong>Confiance:</strong> <span class="confidence-badge">${confidence}%</span></p>
+                            <h4>🏆 Top 5 des Colonnes par Remplissage:</h4>
+                            <div class="columns-grid">
+                    `;
+                    
+                    topColumns.forEach(col => {
+                        html += `
+                            <div class="column-card ${col.is_project_column ? 'project-column' : ''}">
+                                <div class="column-name">${col.name}</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${col.fill_percentage}%"></div>
+                                </div>
+                                <div class="column-stats">
+                                    ${col.fill_percentage}% (${col.fill_count}/${col.total_count})
+                                    ${col.is_project_column ? '🎯 Projet' : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div></div>';
+                    document.getElementById('suggestionResult').innerHTML = html;
+                    
+                    // Mettre à jour la sélection
+                    const select = document.getElementById('selectedColumn');
+                    select.innerHTML = `<option value="${data.best_column}" selected>${data.best_column}</option>`;
+                } else {
+                    throw new Error(data.message || 'Erreur lors de la recherche');
+                }
+            } catch (error) {
+                document.getElementById('suggestionResult').innerHTML = `
+                    <div class="error">Erreur: ${error.message}</div>
+                `;
+            }
+        }
+        
+        async function loadProjectColumns() {
+            document.getElementById('columnsAnalysis').innerHTML = '<div class="loading">🔄 Chargement de l\'analyse...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/project-columns`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `
+                        <div class="results">
+                            <h3>📊 Analyse Complète - ${data.total_columns} Colonnes</h3>
+                            <div class="columns-grid">
+                    `;
+                    
+                    data.columns.forEach(col => {
+                        html += `
+                            <div class="column-card ${col.is_project_column ? 'project-column' : ''}" onclick="selectColumn('${col.name}')">
+                                <div class="column-name">${col.name}</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${col.fill_percentage}%"></div>
+                                </div>
+                                <div class="column-stats">
+                                    ${col.fill_percentage}% (${col.fill_count}/${col.total_count})
+                                    ${col.is_project_column ? '🎯 Projet' : '📊 Autre'}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div></div>';
+                    document.getElementById('columnsAnalysis').innerHTML = html;
+                    
+                    // Remplir le select
+                    const select = document.getElementById('selectedColumn');
+                    select.innerHTML = '<option value="">-- Sélectionner une colonne --</option>';
+                    data.columns.forEach(col => {
+                        select.innerHTML += `<option value="${col.name}">${col.name} (${col.fill_percentage}%)</option>`;
+                    });
+                } else {
+                    throw new Error(data.message || 'Erreur lors du chargement');
+                }
+            } catch (error) {
+                document.getElementById('columnsAnalysis').innerHTML = `
+                    <div class="error">Erreur: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function selectColumn(columnName) {
+            document.getElementById('selectedColumn').value = columnName;
+        }
+        
+        async function uploadAndProcess() {
+            const fileInput = document.getElementById('fileInput');
+            const selectedColumn = document.getElementById('selectedColumn').value;
+            
+            if (!fileInput.files[0]) {
+                alert('Veuillez sélectionner un fichier');
+                return;
+            }
+            
+            if (!selectedColumn) {
+                alert('Veuillez sélectionner une colonne de projet');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            document.getElementById('processResult').innerHTML = '<div class="loading">🔄 Upload en cours...</div>';
+            
+            try {
+                // Upload du fichier
+                const uploadResponse = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const uploadData = await uploadResponse.json();
+                
+                if (!uploadData.success) {
+                    throw new Error(uploadData.message || 'Erreur lors de l\'upload');
+                }
+                
+                document.getElementById('processResult').innerHTML = '<div class="loading">🔄 Traitement en cours...</div>';
+                
+                // Traitement du fichier
+                const processResponse = await fetch(`${API_BASE}/process?file_id=${uploadData.file_id}&filename=${uploadData.filename}&project_column=${encodeURIComponent(selectedColumn)}`, {
+                    method: 'POST'
+                });
+                
+                const processData = await processResponse.json();
+                
+                if (processData.success) {
+                    document.getElementById('processResult').innerHTML = `
+                        <div class="success">
+                            ✅ Traitement terminé avec succès !<br>
+                            📊 Colonne utilisée: ${selectedColumn}<br>
+                            📁 Fichier: ${uploadData.filename}
+                        </div>
+                    `;
+                } else {
+                    throw new Error(processData.message || 'Erreur lors du traitement');
+                }
+            } catch (error) {
+                document.getElementById('processResult').innerHTML = `
+                    <div class="error">Erreur: ${error.message}</div>
+                `;
+            }
+        }
+        
+        // Charger automatiquement les colonnes au démarrage
+        window.onload = function() {
+            loadProjectColumns();
+        };
+    </script>
+</body>
+</html>

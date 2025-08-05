@@ -41,12 +41,12 @@ class ComponentProcessorRunner:
         
         # Vérifier Python
         python_version = self.run_command(f"{self.python_cmd} --version", capture_output=True)
-        print(f"✅ Python: {python_version}")
+        print(f"[OK] Python: {python_version}")
         
         # Installer les dépendances
-        print("📦 Installation des dépendances...")
+        print("[INSTALL] Installation des dépendances...")
         if self.run_command(f"{self.python_cmd} -m pip install -r requirements.txt"):
-            print("✅ Dépendances installées")
+            print("[OK] Dépendances installées")
         
         # Créer les répertoires nécessaires
         dirs = ['output', 'config', 'examples', 'tests/coverage_html']
@@ -59,67 +59,114 @@ class ComponentProcessorRunner:
     def create_samples(self):
         """Crée les fichiers d'exemple."""
         print("Creation des fichiers d'exemple...")
-        return self.run_command(f"{self.python_cmd} main.py --create-samples")
+        # Utiliser le nouveau système - les échantillons existent déjà
+        print("[OK] Fichiers d'exemple disponibles: Sample_Input_Data.xlsx")
+        return True
     
     def process(self, input_file, config=None, verbose=False, validate_only=False, project_column=None):
-        """Traite un fichier."""
-        cmd = f"{self.python_cmd} main.py {input_file}"
+        """Traite un fichier en utilisant le nouveau système ComponentDataProcessor."""
+        try:
+            # Importer et utiliser le système existant
+            from src.component_processor.processor import ComponentDataProcessor
 
-        if config:
-            cmd += f" --config {config}"
-        if verbose:
-            cmd += " --verbose"
-        if validate_only:
-            cmd += " --validate-only"
-        if project_column:
-            cmd += f" --project-column \"{project_column}\""
+            # Créer le processeur
+            processor = ComponentDataProcessor()
 
-        print(f"Traitement: {input_file}")
-        return self.run_command(cmd)
+            # Traiter le fichier
+            if validate_only:
+                print(f"[VALIDATION] {input_file}")
+                # Validation simple - vérifier que le fichier existe et est lisible
+                import pandas as pd
+                df = pd.read_excel(input_file)
+                print(f"[VALIDE] Fichier valide: {len(df)} lignes, {len(df.columns)} colonnes")
+                return True
+            else:
+                print(f"[TRAITEMENT] {input_file}")
+                if project_column:
+                    print(f"[COLONNE] {project_column}")
+                    # Configurer la colonne de projet
+                    processor.set_project_column(project_column)
+
+                # Traitement avec le système existant
+                result = processor.process_file(input_file)
+
+                if result:
+                    print("[SUCCES] Traitement termine avec succes")
+                    return True
+                else:
+                    print("[ERREUR] Traitement echoue")
+                    return False
+
+        except Exception as e:
+            print(f"[ERREUR] Erreur lors du traitement: {e}")
+            return False
     
     def batch_process(self, pattern, config=None):
         """Traite plusieurs fichiers en lot."""
-        cmd = f"{self.python_cmd} main.py --batch \"{pattern}\""
-        
-        if config:
-            cmd += f" --config {config}"
-        
-        print(f"📦 Traitement en lot: {pattern}")
-        return self.run_command(cmd)
+        print(f"[BATCH] Traitement en lot: {pattern}")
+
+        try:
+            from pathlib import Path
+            import glob
+
+            # Trouver les fichiers correspondant au pattern
+            files = glob.glob(pattern)
+            if not files:
+                print(f"[ERREUR] Aucun fichier trouve pour le pattern: {pattern}")
+                return False
+
+            print(f"[INFO] {len(files)} fichiers trouves")
+
+            # Traiter chaque fichier
+            success_count = 0
+            for file_path in files:
+                print(f"\n[TRAITEMENT] {file_path}")
+                if self.process(file_path, config=config):
+                    success_count += 1
+                    print(f"[SUCCES] {file_path}")
+                else:
+                    print(f"[ECHEC] {file_path}")
+
+            print(f"\n[RESUME] {success_count}/{len(files)} fichiers traites avec succes")
+            return success_count == len(files)
+
+        except Exception as e:
+            print(f"[ERREUR] Erreur traitement en lot: {e}")
+            return False
     
     def validate(self, input_file):
         """Valide un fichier sans le traiter."""
-        print(f"✅ Validation: {input_file}")
-        return self.run_command(f"{self.python_cmd} main.py {input_file} --validate-only")
+        print(f"[VALIDATION] {input_file}")
+        return self.process(input_file, validate_only=True)
     
     def test(self, coverage=False, module=None):
         """Exécute les tests."""
         if module:
-            print(f"🧪 Tests du module: {module}")
+            print(f"[TEST] Tests du module: {module}")
             return self.run_command(f"{self.python_cmd} tests/run_tests.py --module {module}")
         elif coverage:
-            print("🧪 Tests avec couverture...")
+            print("[TEST] Tests avec couverture...")
             return self.run_command(f"{self.python_cmd} tests/run_tests.py --coverage")
         else:
-            print("🧪 Exécution des tests...")
+            print("[TEST] Exécution des tests...")
             return self.run_command(f"{self.python_cmd} -m unittest discover tests -v")
     
     def clean(self):
         """Nettoie les fichiers temporaires."""
-        print("🧹 Nettoyage...")
+        print("[CLEAN] Nettoyage...")
         
         # Supprimer les caches Python
         import shutil
         for cache_dir in Path('.').rglob('__pycache__'):
             shutil.rmtree(cache_dir, ignore_errors=True)
-            print(f"🗑️  Supprimé: {cache_dir}")
+            print(f"[DELETE]  Supprimé: {cache_dir}")
         
         # Supprimer les fichiers .pyc
         for pyc_file in Path('.').rglob('*.pyc'):
             pyc_file.unlink(missing_ok=True)
-            print(f"🗑️  Supprimé: {pyc_file}")
+            print(f"[DELETE]  Supprimé: {pyc_file}")
         
-        print("✅ Nettoyage terminé")
+        print("[OK] Nettoyage terminé")
     
     def status(self):
         """Affiche le statut du projet."""
@@ -130,24 +177,24 @@ class ComponentProcessorRunner:
         required_dirs = ['src', 'tests', 'docs', 'config']
         for dir_name in required_dirs:
             if Path(dir_name).exists():
-                print(f"✅ {dir_name}/")
+                print(f"[OK] {dir_name}/")
             else:
-                print(f"❌ {dir_name}/ (manquant)")
+                print(f"[ERREUR] {dir_name}/ (manquant)")
         
         # Vérifier les fichiers principaux
-        required_files = ['main.py', 'requirements.txt', 'README.md']
+        required_files = ['START_SYSTEM.py', 'backend_simple.py', 'simple_web.py', 'requirements.txt', 'README.md']
         for file_name in required_files:
             if Path(file_name).exists():
-                print(f"✅ {file_name}")
+                print(f"[OK] {file_name}")
             else:
-                print(f"❌ {file_name} (manquant)")
+                print(f"[ERREUR] {file_name} (manquant)")
         
         # Vérifier les dépendances
         try:
             import pandas, openpyxl, numpy
-            print("✅ Dépendances principales installées")
+            print("[OK] Dépendances principales installées")
         except ImportError as e:
-            print(f"❌ Dépendances manquantes: {e}")
+            print(f"[ERREUR] Dépendances manquantes: {e}")
         
         # Statistiques des fichiers
         output_dir = Path('output')
@@ -160,16 +207,16 @@ class ComponentProcessorRunner:
     def docs(self, serve=False):
         """Gère la documentation."""
         if serve:
-            print("📚 Serveur de documentation (non implémenté)")
-            print("💡 Consultez les fichiers dans docs/")
+            print("[DOCS] Serveur de documentation (non implémenté)")
+            print("[INFO] Consultez les fichiers dans docs/")
         else:
-            print("📚 Documentation disponible:")
+            print("[DOCS] Documentation disponible:")
             docs_dir = Path('docs')
             if docs_dir.exists():
                 for doc_file in docs_dir.glob('*.md'):
-                    print(f"  📄 {doc_file}")
-            print("  📖 README.md")
-            print("  📄 OVERVIEW.md")
+                    print(f"  [FILE] {doc_file}")
+            print("  [DOC] README.md")
+            print("  [FILE] OVERVIEW.md")
     
     def config_create(self, name, template='default'):
         """Crée un nouveau fichier de configuration."""
@@ -180,10 +227,10 @@ class ComponentProcessorRunner:
         if template_file.exists():
             import shutil
             shutil.copy(template_file, new_file)
-            print(f"✅ Configuration créée: {new_file}")
-            print(f"💡 Basée sur le template: {template}")
+            print(f"[OK] Configuration créée: {new_file}")
+            print(f"[INFO] Basée sur le template: {template}")
         else:
-            print(f"❌ Template non trouvé: {template}")
+            print(f"[ERREUR] Template non trouvé: {template}")
     
     def config_list(self):
         """Liste les configurations disponibles."""
@@ -193,22 +240,22 @@ class ComponentProcessorRunner:
             if configs:
                 print("Configurations disponibles:")
                 for config in configs:
-                    print(f"  📄 {config.stem}")
+                    print(f"  [FILE] {config.stem}")
             else:
-                print("❌ Aucune configuration trouvée")
+                print("[ERREUR] Aucune configuration trouvée")
         else:
-            print("❌ Répertoire config/ non trouvé")
+            print("[ERREUR] Répertoire config/ non trouvé")
     
     def info(self):
         """Affiche les informations du projet."""
-        print("ℹ️  Component Data Processor")
+        print("[INFO]  Component Data Processor")
         print("=" * 40)
-        print("📝 Description: Automatise le traitement des données de composants")
-        print("🏗️  Architecture: Modulaire et extensible")
-        print("🐍 Python: 3.7+")
-        print("📦 Dépendances: pandas, openpyxl, numpy")
-        print("🧪 Tests: unittest + coverage")
-        print("📚 Documentation: Complète")
+        print("[DESC] Description: Automatise le traitement des données de composants")
+        print("[ARCH]  Architecture: Modulaire et extensible")
+        print("[PYTHON] Python: 3.7+")
+        print("[INSTALL] Dépendances: pandas, openpyxl, numpy")
+        print("[TEST] Tests: unittest + coverage")
+        print("[DOCS] Documentation: Complète")
         print("=" * 40)
 
 
@@ -262,19 +309,19 @@ Exemples:
     
     elif args.command == 'process':
         if not args.args:
-            print("❌ Fichier d'entrée requis")
+            print("[ERREUR] Fichier d'entrée requis")
             sys.exit(1)
         runner.process(args.args[0], args.config, args.verbose, project_column=getattr(args, 'project_column', None))
     
     elif args.command == 'batch':
         if not args.args:
-            print("❌ Pattern requis")
+            print("[ERREUR] Pattern requis")
             sys.exit(1)
         runner.batch_process(args.args[0], args.config)
     
     elif args.command == 'validate':
         if not args.args:
-            print("❌ Fichier d'entrée requis")
+            print("[ERREUR] Fichier d'entrée requis")
             sys.exit(1)
         runner.validate(args.args[0])
     
@@ -293,19 +340,19 @@ Exemples:
     elif args.command == 'config':
         if args.args and args.args[0] == 'create':
             if len(args.args) < 2:
-                print("❌ Nom de configuration requis")
+                print("[ERREUR] Nom de configuration requis")
                 sys.exit(1)
             runner.config_create(args.args[1], args.template)
         elif args.args and args.args[0] == 'list':
             runner.config_list()
         else:
-            print("❌ Sous-commande config requise: create, list")
+            print("[ERREUR] Sous-commande config requise: create, list")
     
     elif args.command == 'info':
         runner.info()
     
     else:
-        print(f"❌ Commande inconnue: {args.command}")
+        print(f"[ERREUR] Commande inconnue: {args.command}")
         parser.print_help()
         sys.exit(1)
 

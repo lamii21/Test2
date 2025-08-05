@@ -9,6 +9,17 @@ numpy>=1.21.0
 openpyxl>=3.0.9
 xlsxwriter>=3.0.3
 
+# Web framework dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+pydantic>=2.0.0
+
+# Web interface (Flask - existing)
+flask>=2.3.0
+werkzeug>=2.3.0
+requests>=2.31.0
+
 # Additional utilities
 pathlib2>=2.3.6; python_version < '3.4'
 

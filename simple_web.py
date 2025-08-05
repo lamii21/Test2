@@ -34,8 +34,8 @@ def validate_project_column(column_name: str) -> bool:
     """Valide le nom de colonne de projet pour éviter l'injection."""
     if not column_name:
         return True
-    # Autoriser seulement lettres, chiffres, underscore, espaces, tirets
-    pattern = r'^[a-zA-Z0-9_\s\-]+$'
+    # Autoriser lettres, chiffres, underscore, espaces, tirets, plus
+    pattern = r'^[a-zA-Z0-9_\s\-\+]+$'
     return bool(re.match(pattern, column_name)) and len(column_name) <= 100
 
 def validate_filename_safe(filename: str) -> bool:
@@ -49,6 +49,12 @@ def validate_filename_safe(filename: str) -> bool:
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/enhanced')
+def upload_enhanced():
+    """Page d'upload avec logique ETL-Automated-Tool avancée"""
+    return render_template('upload_enhanced.html')
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -91,29 +97,57 @@ def upload_file():
             file.save(filepath)
             
             try:
-                # Construire la commande avec le bon interpréteur Python
-                python_exe = sys.executable  # Utilise le même Python que le serveur web
-                cmd = [python_exe, 'runner.py', 'process', str(filepath)]
+                # Utiliser le backend FastAPI pour le traitement
+                from frontend_api_client_stable import stable_api_client as api_client
 
-                # Ajouter la colonne de projet si spécifiée (avec validation)
+                # Vérifier si le backend est disponible
+                if not api_client.is_backend_available():
+                    flash('Backend FastAPI non disponible', 'error')
+                    return redirect(request.url)
+
+                # Upload du fichier vers le backend
+                upload_response = api_client.upload_file(str(filepath))
+
+                if not upload_response.get('success'):
+                    flash(f'Erreur upload: {upload_response.get("message", "Erreur inconnue")}', 'error')
+                    return redirect(request.url)
+
+                # Traitement via le backend
                 project_column = request.form.get('project_column')
                 if project_column and project_column.strip():
                     project_column_clean = project_column.strip()
-                    if validate_project_column(project_column_clean):
-                        cmd.extend(['--project-column', project_column_clean])
-                    else:
+                    if not validate_project_column(project_column_clean):
                         flash('Nom de colonne de projet invalide', 'error')
                         return redirect(request.url)
+                else:
+                    project_column_clean = None
 
-                # Timeout configurable via variable d'environnement
-                timeout = int(os.environ.get('PROCESSING_TIMEOUT', '300'))
-
-                result = subprocess.run(
-                    cmd,
-                    capture_output=True,
-                    text=True,
-                    timeout=timeout
+                # Appeler l'API de traitement
+                import requests
+                process_response = requests.post(
+                    f"{api_client.base_url}/process",
+                    params={
+                        'file_id': upload_response['file_id'],
+                        'filename': upload_response['filename'],
+                        'project_column': project_column_clean
+                    },
+                    timeout=300
                 )
+
+                if process_response.status_code != 200:
+                    flash('Erreur lors du traitement', 'error')
+                    return redirect(request.url)
+
+                result_data = process_response.json()
+
+                # Simuler l'objet result pour compatibilité
+                class MockResult:
+                    def __init__(self, data):
+                        self.returncode = 0 if data.get('success') else 1
+                        self.stdout = data.get('stdout', '')
+                        self.stderr = data.get('stderr', '')
+
+                result = MockResult(result_data)
                 
                 print(f"Code de retour: {result.returncode}")
                 print(f"Sortie stdout: {result.stdout[:200]}...")
@@ -400,87 +434,107 @@ def api_files():
 
 @app.route('/api/project-columns')
 def api_project_columns():
-    """Récupère les colonnes de projet disponibles dans le Master BOM (colonnes 2 à 23)."""
+    """Récupère les colonnes de projet disponibles via le backend FastAPI."""
     try:
-        # Lire le Master BOM - utiliser le chemin depuis config.py
-        import os
-        import sys
+        # Importer le client API
+        from frontend_api_client_stable import stable_api_client as api_client
 
-        # Ajouter le répertoire racine au path pour importer config
-        current_dir = Path(__file__).parent
-        if str(current_dir) not in sys.path:
-            sys.path.insert(0, str(current_dir))
-
-        try:
-            from config import Config
-            config = Config()
-            master_bom_path = Path(config.master_bom_file)
-        except Exception as e:
-            # Fallback vers le chemin direct
-            master_bom_path = Path(__file__).parent / 'Master_BOM_Real.xlsx'
-
-        if not master_bom_path.exists():
+        # Vérifier si le backend est disponible
+        if not api_client.is_backend_available():
             return jsonify({
                 'success': False,
-                'message': f'Master BOM non trouvé: {master_bom_path.absolute()}',
+                'message': 'Backend FastAPI non disponible',
                 'columns': []
             })
 
-        df = pd.read_excel(master_bom_path)
+        # Récupérer les colonnes via l'API
+        response = api_client.get_project_columns()
+        return jsonify(response)
 
-        # Récupérer les colonnes 2 à 23 (index 1 à 22)
-        project_columns = []
-        start_col = 1  # Colonne 2 (index 1)
-        end_col = min(23, len(df.columns))  # Colonne 23 ou dernière colonne disponible
-
-        for i in range(start_col, end_col):
-            col = df.columns[i]
-            unique_values = df[col].nunique()
-            sample_values = df[col].dropna().head(3).tolist()
-
-            # Compter les valeurs non-nulles
-            non_null_count = df[col].notna().sum()
-
-            # Vérifier si c'est une colonne de statut (contient A, D, X, 0)
-            status_values = set(['A', 'D', 'X', '0'])
-            col_values = set(df[col].dropna().astype(str).unique())
-            is_status_column = bool(status_values.intersection(col_values))
-
-            project_columns.append({
-                'name': col,
-                'index': int(i + 1),  # Position de la colonne (1-based)
-                'unique_values': int(unique_values),
-                'sample_values': sample_values,
-                'non_null_count': int(non_null_count),
-                'total_rows': int(len(df)),
-                'is_status_column': is_status_column,
-                'fill_percentage': round((non_null_count / len(df)) * 100, 1)
-            })
-
-        return jsonify({
-            'success': True,
-            'columns': project_columns,
-            'message': f'{len(project_columns)} colonnes de projet trouvées (colonnes 2 à {end_col})'
-        })
-
-    except FileNotFoundError:
-        return jsonify({
-            'success': False,
-            'message': 'Master BOM non trouvé',
-            'columns': []
-        })
-    except pd.errors.EmptyDataError:
-        return jsonify({
-            'success': False,
-            'message': 'Master BOM vide ou corrompu',
-            'columns': []
-        })
     except Exception as e:
         print(f"Erreur lors de la récupération des colonnes: {e}")
         return jsonify({
             'success': False,
-            'message': 'Erreur interne du serveur',
+            'message': f'Erreur de communication avec le backend: {str(e)}',
             'columns': []
+        })
+
+
+@app.route('/api/suggest-column', methods=['POST'])
+def api_suggest_column():
+    """API pour suggérer une colonne de projet avec logique ETL-Automated-Tool"""
+    try:
+        data = request.get_json()
+        project_hint = data.get('project_hint', '')
+
+        from frontend_api_client_stable import stable_api_client as api_client
+
+        if not api_client.is_backend_available():
+            return jsonify({
+                'success': False,
+                'message': 'Backend FastAPI non disponible'
+            })
+
+        # Appeler l'endpoint de suggestion du backend
+        import requests
+        response = requests.post(
+            f"{api_client.backend_url}/suggest-column",
+            json={"input_name": project_hint},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Erreur lors de la suggestion'
+            })
+
+    except Exception as e:
+        print(f"Erreur API suggestion colonne: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        })
+
+
+@app.route('/api/find-best-column', methods=['POST'])
+def api_find_best_column():
+    """API pour trouver la meilleure colonne de projet"""
+    try:
+        data = request.get_json()
+        project_hint = data.get('project_hint', '')
+
+        from frontend_api_client_stable import stable_api_client as api_client
+
+        if not api_client.is_backend_available():
+            return jsonify({
+                'success': False,
+                'message': 'Backend FastAPI non disponible'
+            })
+
+        # Appeler l'endpoint du backend
+        import requests
+        response = requests.post(
+            f"{api_client.backend_url}/find-best-project-column",
+            json={"project_hint": project_hint},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Erreur lors de la recherche'
+            })
+
+    except Exception as e:
+        print(f"Erreur API meilleure colonne: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
         })
 
 @app.route('/health')

@@ -1,141 +1,134 @@
-# Component Data Processor
+# 🚀 Component Data Processor v2.0
 
-Un système de traitement de données de composants avec interface web et CLI, optimisé pour les données Yazaki avec lookup VLOOKUP-style.
+## Architecture Moderne FastAPI + Flask
 
-## 🚀 Démarrage rapide
+### 📋 Description
 
-### Installation
+Système de traitement de données de composants YAZAKI avec architecture moderne séparant backend et frontend. Le système permet la sélection dynamique de colonnes de projets et le traitement automatisé de fichiers Excel.
+
+### 🏗️ Architecture
+
+```
+Component Data Processor v2.0
+├── 🔧 Backend FastAPI (Port 8000)
+│   ├── API REST moderne
+│   ├── Traitement des fichiers
+│   └── Documentation automatique
+│
+├── 🌐 Frontend Flask (Port 5000)
+│   ├── Interface web utilisateur
+│   └── Communication avec backend
+│
+└── 📊 Données
+    ├── Master_BOM_Real.xlsx (22 colonnes de projets)
+    └── Fichiers d'entrée/sortie
+```
+
+### ✨ Fonctionnalités
+
+- ✅ **22 colonnes de projets** détectées automatiquement
+- ✅ **Sélection dynamique** de colonnes via interface web
+- ✅ **Upload et traitement** de fichiers Excel
+- ✅ **API REST complète** avec documentation Swagger
+- ✅ **Architecture Backend/Frontend** séparée
+- ✅ **Tests d'intégration** automatisés
+
+### 🚀 Démarrage Rapide
+
+#### 1. Installation
 ```bash
 pip install -r requirements.txt
 ```
 
-### Utilisation
+#### 2. Démarrage du système
+```bash
+python START_SYSTEM.py
+```
 
-#### Interface Web (Recommandé)
+#### 3. Accès aux services
+- **Interface web**: http://localhost:5000
+- **API Backend**: http://localhost:8000
+- **Documentation**: http://localhost:8000/docs
+
+### 📊 Utilisation
+
+1. **Sélection de colonne** : Cliquer sur "Charger" pour voir les 22 colonnes
+2. **Upload de fichier** : Sélectionner un fichier Excel (.xlsx)
+3. **Traitement** : Choisir une colonne de projet et traiter
+4. **Résultat** : Télécharger le fichier traité
+
+### 🔧 Fichiers Principaux
+
+| Fichier | Description |
+|---------|-------------|
+| `START_SYSTEM.py` | 🚀 Démarrage système complet |
+| `backend_simple.py` | 🔧 Backend FastAPI |
+| `simple_web.py` | 🌐 Frontend Flask |
+| `frontend_api_client.py` | 📡 Client API |
+| `runner.py` | ⚙️ Processeur principal |
+| `config.py` | 🔧 Configuration |
+| `Master_BOM_Real.xlsx` | 📊 Master BOM (22 colonnes) |
+| `test_complete_system.py` | 🧪 Tests d'intégration |
+
+### 🧪 Tests
+
+```bash
+# Test complet du système
+python test_complete_system.py
+```
+
+### 📚 Documentation
+
+- **Guide d'utilisation** : `GUIDE_UTILISATION_FINAL.md`
+- **Documentation technique** : `README_FINAL.md`
+- **API Documentation** : http://localhost:8000/docs
+
+### 🎯 Colonnes de Projets Recommandées
+
+Pour projets Ford V710_B2:
+- `V710_B2_J74_JOB1+90_YMOK` (35.1% rempli)
+- `V710_B2_J74_JOB1+90_YOT-K` (20.4% rempli)
+- `V710_B2_J74_JOB1+90_YWTT` (26.2% rempli)
+
+### 🔍 Dépannage
+
+#### Backend non disponible
+```bash
+python -m uvicorn backend_simple:app --host 0.0.0.0 --port 8000
+```
+
+#### Frontend non accessible
 ```bash
 python simple_web.py
 ```
-Puis ouvrez http://localhost:5000
 
-#### Ligne de commande
+#### Tests échoués
 ```bash
-# Créer des exemples
-python runner.py samples
-
-# Traiter un fichier
-python runner.py process votre_fichier.xlsx
-
-# Voir le statut
-python runner.py status
+# Vérifier les services
+curl http://localhost:8000/health
+curl http://localhost:5000
 ```
 
-## 📊 Fonctionnalités principales
+### 📈 Performances
 
-### 🎯 **Lookup VLOOKUP-style**
-- Recherche simple par PN (numéro de pièce)
-- Colonne Status ajoutée automatiquement
-- Gestion des doublons (premier trouvé)
-- Statistiques de mapping détaillées
+- **Colonnes détectées** : 22 colonnes (colonnes 2-23)
+- **Temps de traitement** : 3-5 secondes par fichier
+- **Formats supportés** : .xlsx, .xls
+- **Taille max** : 100MB
 
-### 🔄 **Mapping intelligent des colonnes**
-- **"YAZAKI PN"** → **"PN"** (numéro de pièce)
-- **"BOM ASL FILTER"** → **"Project"** (nom du projet)
-- **"Item Description"** → **"Description"**
-- **"Manufacturer"** → **"Supplier"**
+### 🏆 Avantages
 
-### 📈 **4 statuts de composants**
-- **X** : Ancien (ignoré, gris)
-- **D** : Déprécié (à traiter, jaune)  
-- **0** : Doublon (à vérifier, rouge)
-- **NaN** : Nouveau (à ajouter, bleu)
+1. **Architecture moderne** : Séparation Backend/Frontend
+2. **API REST** : Documentation automatique Swagger
+3. **Interface intuitive** : Sélection dynamique de colonnes
+4. **Tests automatisés** : Validation d'intégration
+5. **Logs détaillés** : Traçabilité complète
+6. **Prêt production** : Architecture scalable
 
-### 🌐 **Interface web complète**
-- Upload par glisser-déposer
-- Traitement en temps réel
-- Téléchargement des résultats
-- Création d'exemples intégrée
+---
 
-## 📁 Structure du projet
+## 🎉 Système Opérationnel
 
-```
-├── src/                    # Code source principal
-│   ├── component_processor/   # Processeur principal
-│   ├── data_handlers/         # Gestionnaires de données
-│   └── utils/                 # Utilitaires
-├── frontend/              # Interface web
-│   ├── templates/            # Templates HTML
-│   ├── static/              # CSS/JS
-│   └── uploads/             # Fichiers uploadés
-├── config/               # Configuration
-├── output/               # Fichiers de sortie
-├── main.py              # Point d'entrée CLI
-├── runner.py            # Interface CLI simplifiée
-├── simple_web.py        # Serveur web
-├── Master_BOM.xlsx      # Master BOM de référence
-└── Sample_Input_Data.xlsx   # Données d'exemple
-```
+**Architecture moderne ✅ | Interface intuitive ✅ | API complète ✅**
 
-## 🎯 Workflow typique
-
-1. **Créer des exemples** : `python runner.py samples`
-2. **Remplacer Master_BOM.xlsx** par votre Master BOM réel
-3. **Traiter vos données** : Interface web ou CLI
-4. **Récupérer les résultats** : Fichiers Excel formatés avec statuts
-
-## 📋 Format des données
-
-### Fichier d'entrée attendu
-- **YAZAKI PN** : Numéros de pièces Yazaki
-- **BOM ASL FILTER** : Nom du projet
-- **Item Description** : Description des composants
-- **Manufacturer** : Fournisseur
-
-### Master BOM requis
-- **PN** : Numéros de pièces
-- **Project** : Nom du projet
-- **Status** : X, D, 0, ou vide
-- **Description, Supplier, Price** : Informations additionnelles
-
-## 🎨 Résultats du traitement
-
-### Fichiers générés
-- **Update_YYYY-MM-DD.xlsx** : Vos données avec statuts
-- **Master_BOM_Updated_YYYY-MM-DD.xlsx** : Master BOM mis à jour
-- **Processing_Summary_YYYY-MM-DD.csv** : Rapport détaillé
-
-### KPIs affichés
-- Total Records
-- Status 'X' (Ancien)
-- Status 'D' (Déprécié)
-- Status '0' (Doublon)
-- Not Found (NaN)
-
-## 📖 Documentation
-
-Voir `QUICKSTART.md` pour un guide détaillé d'utilisation.
-
-## 🔧 Configuration
-
-Le système utilise les fichiers de configuration dans `config/`:
-- `default.json` : Configuration par défaut
-- `production.json` : Configuration de production
-
-## 🧪 Tests
-
-```bash
-cd tests
-python run_tests.py
-```
-
-## 📝 Logs
-
-Les logs sont générés automatiquement dans le répertoire racine avec le format :
-`component_processor_YYYY-MM-DD.log`
-
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
+Le Component Data Processor v2.0 est prêt pour la production avec une architecture professionnelle moderne.

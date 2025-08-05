@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+
+{% block title %}Traiter un fichier - Component Data Processor Enhanced{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Section Suggestion Intelligente -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>Suggestion Intelligente de Colonne
+                </h4>
+                <small class="text-muted">Logique avancée inspirée d'ETL-Automated-Tool</small>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label for="project-hint" class="form-label">
+                                <i class="fas fa-lightbulb me-1"></i>Nom du Projet (ex: FORD_J74_V710_B2_PP_YOTK_00000)
+                            </label>
+                            <input type="text" class="form-control" id="project-hint" 
+                                   placeholder="Entrez le nom de votre projet pour une suggestion intelligente...">
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-warning" onclick="suggestColumn()">
+                                <i class="fas fa-search me-2"></i>Suggérer une Colonne
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="findBestColumn()">
+                                <i class="fas fa-star me-2"></i>Trouver la Meilleure
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="loadAllColumns()">
+                                <i class="fas fa-list me-2"></i>Voir Toutes les Colonnes
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-robot fa-3x text-primary mb-2"></i>
+                            <p class="small text-muted">
+                                Intelligence artificielle pour suggérer la meilleure colonne 
+                                basée sur votre nom de projet
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Résultat de suggestion -->
+                <div id="suggestion-result" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Section Upload et Traitement -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>Traiter un fichier Excel
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="upload-form">
+                    <!-- Zone de drop -->
+                    <div class="file-drop-zone mb-4" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h5>Glissez-déposez votre fichier Excel ici</h5>
+                        <p class="text-muted">ou cliquez pour sélectionner un fichier</p>
+                        <input type="file" name="file" id="file-input" class="d-none" accept=".xlsx,.xls">
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Formats acceptés: .xlsx, .xls (max 100MB)
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Informations du fichier sélectionné -->
+                    <div id="file-info" class="alert alert-info d-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-excel fa-2x me-3"></i>
+                            <div>
+                                <div class="fw-bold" id="file-name"></div>
+                                <div class="small text-muted" id="file-size"></div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="clear-file">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sélection de colonne de projet -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <label for="project-column" class="form-label">
+                                <i class="fas fa-columns me-1"></i>Colonne de Projet Sélectionnée
+                            </label>
+                            <select name="project_column" id="project-column" class="form-select" required>
+                                <option value="">-- Sélectionner une colonne de projet --</option>
+                            </select>
+                            <div class="form-text">
+                                Utilisez la suggestion intelligente ci-dessus pour trouver la meilleure colonne
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Statistiques de la Colonne</label>
+                            <div id="column-stats" class="p-3 bg-light rounded">
+                                <small class="text-muted">Sélectionnez une colonne pour voir les statistiques</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Options de traitement -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="validate-first" checked>
+                                <label class="form-check-label" for="validate-first">
+                                    Valider avant traitement
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="verbose-mode">
+                                <label class="form-check-label" for="verbose-mode">
+                                    Mode détaillé (logs complets)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" disabled>
+                            <i class="fas fa-cogs me-2"></i>Traiter le fichier
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo me-2"></i>Réinitialiser
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Barre de progression -->
+                <div id="progress-container" class="mt-4 d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">Traitement en cours...</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Résultats -->
+                <div id="results-container" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour l'analyse des colonnes -->
+<div class="modal fade" id="columns-modal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-chart-bar me-2"></i>Analyse Complète des Colonnes de Projets
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="columns-analysis-content">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedColumnData = null;
+    
+    // Gestion du drag & drop
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-primary', 'bg-light');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-primary', 'bg-light');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-primary', 'bg-light');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect();
+        }
+    });
+    
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    function handleFileSelect() {
+        const file = fileInput.files[0];
+        if (file) {
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-size').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            document.getElementById('file-info').classList.remove('d-none');
+            document.getElementById('submit-btn').disabled = !document.getElementById('project-column').value;
+        }
+    }
+    
+    document.getElementById('clear-file').addEventListener('click', () => {
+        fileInput.value = '';
+        document.getElementById('file-info').classList.add('d-none');
+        document.getElementById('submit-btn').disabled = true;
+    });
+    
+    // Suggestion intelligente de colonne
+    async function suggestColumn() {
+        const projectHint = document.getElementById('project-hint').value.trim();
+        if (!projectHint) {
+            alert('Veuillez entrer un nom de projet');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/suggest-column', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_hint: projectHint })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const confidence = Math.round(data.confidence * 100);
+                document.getElementById('suggestion-result').innerHTML = `
+                    <div class="alert alert-success">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-lightbulb fa-2x me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Suggestion Intelligente</h6>
+                                <p class="mb-1"><strong>Colonne suggérée:</strong> ${data.suggested_column}</p>
+                                <p class="mb-0">
+                                    <strong>Confiance:</strong> 
+                                    <span class="badge bg-${confidence > 70 ? 'success' : confidence > 50 ? 'warning' : 'secondary'}">${confidence}%</span>
+                                </p>
+                            </div>
+                            <button class="btn btn-primary ms-auto" onclick="selectSuggestedColumn('${data.suggested_column}')">
+                                <i class="fas fa-check me-1"></i>Utiliser
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                showError('Erreur lors de la suggestion: ' + data.message);
+            }
+        } catch (error) {
+            showError('Erreur de communication: ' + error.message);
+        }
+    }
+    
+    async function findBestColumn() {
+        const projectHint = document.getElementById('project-hint').value.trim();
+        
+        try {
+            const response = await fetch('/api/find-best-column', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_hint: projectHint })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const confidence = Math.round(data.confidence * 100);
+                const topColumns = data.analysis.columns_analysis.slice(0, 3);
+                
+                let html = `
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-star me-2"></i>Meilleure Colonne Trouvée</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Recommandation:</strong> ${data.best_column}</p>
+                                <p><strong>Confiance:</strong> 
+                                    <span class="badge bg-${confidence > 70 ? 'success' : 'warning'}">${confidence}%</span>
+                                </p>
+                                <button class="btn btn-success btn-sm" onclick="selectSuggestedColumn('${data.best_column}')">
+                                    <i class="fas fa-check me-1"></i>Utiliser cette colonne
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Top 3 des colonnes:</h6>
+                                <div class="list-group list-group-flush">
+                `;
+                
+                topColumns.forEach((col, index) => {
+                    html += `
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <div>
+                                <small class="fw-bold">${col.name}</small>
+                                <div class="progress mt-1" style="height: 4px;">
+                                    <div class="progress-bar" style="width: ${col.fill_percentage}%"></div>
+                                </div>
+                            </div>
+                            <span class="badge bg-primary">${col.fill_percentage}%</span>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('suggestion-result').innerHTML = html;
+            } else {
+                showError('Erreur lors de la recherche: ' + data.message);
+            }
+        } catch (error) {
+            showError('Erreur de communication: ' + error.message);
+        }
+    }
+    
+    function selectSuggestedColumn(columnName) {
+        const select = document.getElementById('project-column');
+        
+        // Ajouter l'option si elle n'existe pas
+        let option = Array.from(select.options).find(opt => opt.value === columnName);
+        if (!option) {
+            option = new Option(columnName, columnName);
+            select.appendChild(option);
+        }
+        
+        select.value = columnName;
+        updateColumnStats(columnName);
+        
+        // Activer le bouton de soumission si un fichier est sélectionné
+        if (fileInput.files.length > 0) {
+            document.getElementById('submit-btn').disabled = false;
+        }
+    }
+    
+    async function loadAllColumns() {
+        const modal = new bootstrap.Modal(document.getElementById('columns-modal'));
+        modal.show();
+        
+        try {
+            const response = await fetch('/api/project-columns');
+            const data = await response.json();
+            
+            if (data.success) {
+                let html = `
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                ${data.total_columns} colonnes de projets trouvées. 
+                                Cliquez sur une colonne pour la sélectionner.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                `;
+                
+                data.columns.forEach(col => {
+                    const isProject = col.is_project_column;
+                    html += `
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 ${isProject ? 'border-success' : ''}" 
+                                 style="cursor: pointer;" 
+                                 onclick="selectColumnFromModal('${col.name}')">
+                                <div class="card-body">
+                                    <h6 class="card-title d-flex justify-content-between">
+                                        ${col.name}
+                                        ${isProject ? '<i class="fas fa-star text-success"></i>' : ''}
+                                    </h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar ${isProject ? 'bg-success' : ''}" 
+                                             style="width: ${col.fill_percentage}%"></div>
+                                    </div>
+                                    <small class="text-muted">
+                                        ${col.fill_percentage}% rempli (${col.fill_count}/${col.total_count})
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                document.getElementById('columns-analysis-content').innerHTML = html;
+                
+                // Remplir le select
+                const select = document.getElementById('project-column');
+                select.innerHTML = '<option value="">-- Sélectionner une colonne de projet --</option>';
+                data.columns.forEach(col => {
+                    const option = new Option(`${col.name} (${col.fill_percentage}%)`, col.name);
+                    select.appendChild(option);
+                });
+                
+            } else {
+                showError('Erreur lors du chargement: ' + data.message);
+            }
+        } catch (error) {
+            showError('Erreur de communication: ' + error.message);
+        }
+    }
+    
+    function selectColumnFromModal(columnName) {
+        document.getElementById('project-column').value = columnName;
+        updateColumnStats(columnName);
+        
+        // Fermer le modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('columns-modal'));
+        modal.hide();
+        
+        // Activer le bouton si un fichier est sélectionné
+        if (fileInput.files.length > 0) {
+            document.getElementById('submit-btn').disabled = false;
+        }
+    }
+    
+    function updateColumnStats(columnName) {
+        // Mettre à jour les statistiques de la colonne sélectionnée
+        // Cette fonction sera appelée quand une colonne est sélectionnée
+        document.getElementById('column-stats').innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-chart-line text-primary"></i>
+                <div class="small mt-1">Colonne: ${columnName}</div>
+            </div>
+        `;
+    }
+    
+    function showError(message) {
+        document.getElementById('suggestion-result').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>${message}
+            </div>
+        `;
+    }
+    
+    function resetForm() {
+        document.getElementById('upload-form').reset();
+        document.getElementById('file-info').classList.add('d-none');
+        document.getElementById('suggestion-result').innerHTML = '';
+        document.getElementById('submit-btn').disabled = true;
+    }
+    
+    // Charger les colonnes au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAllColumns();
+    });
+    
+    // Gestion de la soumission du formulaire
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const projectColumn = document.getElementById('project-column').value;
+        
+        if (!projectColumn) {
+            alert('Veuillez sélectionner une colonne de projet');
+            return;
+        }
+        
+        // Afficher la barre de progression
+        document.getElementById('progress-container').classList.remove('d-none');
+        document.getElementById('submit-btn').disabled = true;
+        
+        // Simuler le traitement (à remplacer par l'appel réel)
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 20;
+            if (progress > 100) progress = 100;
+            
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = Math.round(progress) + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                // Soumettre le formulaire réel
+                this.submit();
+            }
+        }, 500);
+    });
+</script>
+{% endblock %}

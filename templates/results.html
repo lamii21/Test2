@@ -1,0 +1,517 @@
+{% extends "base_stable.html" %}
+
+{% block title %}Résultats - Component Data Processor Stable{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-download me-2"></i>Fichiers de Résultats
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <p class="text-muted mb-1">
+                            Téléchargez les fichiers de résultats générés par le traitement
+                        </p>
+                        <small class="text-muted">
+                            <i class="fas fa-eye me-1"></i>Utilisez "Aperçu" pour voir le contenu sans télécharger
+                        </small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-success btn-sm" onclick="downloadAll()" id="download-all-btn" style="display: none;">
+                            <i class="fas fa-download me-1"></i>Tout Télécharger
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="refreshResults()">
+                            <i class="fas fa-sync-alt me-1"></i>Actualiser
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Zone de chargement -->
+                <div id="loading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Chargement des fichiers...</p>
+                </div>
+                
+                <!-- Liste des fichiers -->
+                <div id="files-container" class="d-none">
+                    <div id="files-list"></div>
+                </div>
+                
+                <!-- Message si aucun fichier -->
+                <div id="no-files" class="text-center py-4 d-none">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5>Aucun fichier de résultat disponible</h5>
+                    <p class="text-muted">
+                        Traitez d'abord un fichier pour voir les résultats ici.
+                    </p>
+                    <a href="{{ url_for('upload_enhanced') }}" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Traiter un fichier
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Informations sur les types de fichiers -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Types de Fichiers Générés</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center p-3 border rounded" style="border-color: #28a745 !important; background-color: #f8fff8;">
+                            <i class="fas fa-file-excel fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">📊 Fichier Principal</h5>
+                            <h6><strong>Update_YYYY-MM-DD.xlsx</strong></h6>
+                            <small class="text-muted">
+                                <strong>VOS DONNÉES avec informations Master BOM</strong><br>
+                                Contient vos données d'origine enrichies avec Status, Description, Price selon le projet sélectionné
+                            </small>
+                            <div class="mt-2">
+                                <span class="badge bg-success">FICHIER PRINCIPAL À TÉLÉCHARGER</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-database fa-2x text-secondary mb-2"></i>
+                            <h6>Master BOM Mis à Jour</h6>
+                            <small class="text-muted">
+                                Master BOM complet avec nouvelles données intégrées (fichier de référence)
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                            <h6>Résumé de Traitement</h6>
+                            <small class="text-muted">
+                                Statistiques détaillées du traitement effectué (CSV)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let filesData = [];
+    
+    async function loadResults() {
+        try {
+            document.getElementById('loading').classList.remove('d-none');
+            document.getElementById('files-container').classList.add('d-none');
+            document.getElementById('no-files').classList.add('d-none');
+            
+            const response = await fetch('/api/list-outputs');
+            const data = await response.json();
+            
+            document.getElementById('loading').classList.add('d-none');
+            
+            if (data.success && data.files && data.files.length > 0) {
+                filesData = data.files;
+                displayFiles(data.files);
+                document.getElementById('files-container').classList.remove('d-none');
+            } else {
+                document.getElementById('no-files').classList.remove('d-none');
+            }
+            
+        } catch (error) {
+            document.getElementById('loading').classList.add('d-none');
+            document.getElementById('no-files').classList.remove('d-none');
+            showError('Erreur lors du chargement des fichiers: ' + error.message);
+        }
+    }
+    
+    function displayFiles(files) {
+        const container = document.getElementById('files-list');
+
+        if (files.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">Aucun fichier disponible</p>';
+            document.getElementById('download-all-btn').style.display = 'none';
+            return;
+        }
+
+        // Organiser les fichiers par catégories
+        const mainFiles = [];
+        const masterBomFiles = [];
+        const summaryFiles = [];
+        const otherFiles = [];
+
+        files.forEach(file => {
+            const name = file.filename.toLowerCase();
+            if (name.startsWith('update_') && name.endsWith('.xlsx')) {
+                mainFiles.push(file);
+            } else if (name.includes('master_bom')) {
+                masterBomFiles.push(file);
+            } else if (name.includes('summary') || name.includes('processing')) {
+                summaryFiles.push(file);
+            } else {
+                otherFiles.push(file);
+            }
+        });
+
+        let html = '';
+
+        // Section Fichiers Principaux
+        if (mainFiles.length > 0) {
+            html += `
+                <div class="mb-4">
+                    <h6 class="text-success mb-3">
+                        <i class="fas fa-star me-2"></i>Fichiers Principaux (Vos données enrichies)
+                    </h6>
+                    <div class="list-group">
+            `;
+
+            mainFiles.forEach(file => {
+                html += createFileItem(file, true);
+            });
+
+            html += '</div></div>';
+        }
+
+        // Section Fichiers de Référence
+        if (masterBomFiles.length > 0) {
+            html += `
+                <div class="mb-4">
+                    <h6 class="text-secondary mb-3">
+                        <i class="fas fa-database me-2"></i>Fichiers de Référence (Master BOM)
+                    </h6>
+                    <div class="list-group">
+            `;
+
+            masterBomFiles.forEach(file => {
+                html += createFileItem(file, false);
+            });
+
+            html += '</div></div>';
+        }
+
+        // Section Rapports
+        if (summaryFiles.length > 0) {
+            html += `
+                <div class="mb-4">
+                    <h6 class="text-info mb-3">
+                        <i class="fas fa-chart-line me-2"></i>Rapports de Traitement
+                    </h6>
+                    <div class="list-group">
+            `;
+
+            summaryFiles.forEach(file => {
+                html += createFileItem(file, false);
+            });
+
+            html += '</div></div>';
+        }
+
+        // Section Autres Fichiers
+        if (otherFiles.length > 0) {
+            html += `
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3">
+                        <i class="fas fa-folder me-2"></i>Autres Fichiers
+                    </h6>
+                    <div class="list-group">
+            `;
+
+            otherFiles.forEach(file => {
+                html += createFileItem(file, false);
+            });
+
+            html += '</div></div>';
+        }
+
+        container.innerHTML = html;
+
+        // Afficher le bouton "Tout télécharger" s'il y a plusieurs fichiers
+        if (files.length > 1) {
+            document.getElementById('download-all-btn').style.display = 'inline-block';
+        }
+    }
+
+    function createFileItem(file, isMainFile) {
+        const fileSize = formatFileSize(file.size);
+        const fileDate = new Date(file.modified * 1000).toLocaleString('fr-FR');
+        const fileIcon = getFileIcon(file.filename);
+        const description = getFileDescription(file.filename);
+
+        const itemClass = isMainFile ? 'list-group-item border-success bg-light' : 'list-group-item';
+        const badge = isMainFile ? '<span class="badge bg-success ms-2">FICHIER PRINCIPAL</span>' : '';
+
+        return `
+            <div class="${itemClass}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center">
+                        <i class="${fileIcon} fa-2x me-3"></i>
+                        <div>
+                            <h6 class="mb-1">${file.filename}${badge}</h6>
+                            <p class="mb-1 text-muted small">${description}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>${fileDate} •
+                                <i class="fas fa-hdd me-1"></i>${fileSize}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-info btn-sm" onclick="previewFile('${file.filename}')" title="Voir le contenu sans télécharger">
+                            <i class="fas fa-eye me-1"></i>Aperçu
+                        </button>
+                        <a href="${file.frontend_download_url}" class="btn ${isMainFile ? 'btn-success' : 'btn-outline-success'} btn-sm" title="Télécharger le fichier">
+                            <i class="fas fa-download me-1"></i>${isMainFile ? 'Télécharger Principal' : 'Télécharger'}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function getFileIcon(filename) {
+        const name = filename.toLowerCase();
+        if (name.startsWith('update_') && name.endsWith('.xlsx')) {
+            return 'fas fa-star text-warning'; // Fichier principal - étoile dorée
+        } else if (name.includes('master_bom')) {
+            return 'fas fa-database text-secondary';
+        } else if (name.includes('summary') || name.includes('processing')) {
+            return 'fas fa-chart-line text-info';
+        } else if (name.includes('excluded') || name.includes('clean')) {
+            return 'fas fa-file-alt text-warning';
+        } else {
+            return 'fas fa-file text-secondary';
+        }
+    }
+
+    function getFileDescription(filename) {
+        const name = filename.toLowerCase();
+        if (name.startsWith('update_') && name.endsWith('.xlsx')) {
+            return '📊 VOS DONNÉES enrichies avec informations Master BOM (Status, Description, Price) selon le projet sélectionné';
+        } else if (name.includes('master_bom')) {
+            return '🗄️ Master BOM complet mis à jour avec nouvelles données (fichier de référence)';
+        } else if (name.includes('summary') || name.includes('processing')) {
+            return '📈 Statistiques détaillées du traitement (nombre de lignes, durée, etc.)';
+        } else if (name.includes('excluded') || name.includes('clean')) {
+            return '⚠️ Données qui n\'ont pas pu être traitées (lignes exclues)';
+        } else {
+            return '📄 Fichier de résultat du traitement';
+        }
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    async function previewFile(filename) {
+        try {
+            // Afficher un modal de chargement
+            const previewModal = document.createElement('div');
+            previewModal.className = 'modal fade';
+            previewModal.id = 'preview-modal';
+            previewModal.innerHTML = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-eye me-2"></i>Aperçu : ${filename}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body" id="preview-content">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Chargement...</span>
+                                </div>
+                                <p class="mt-2">Chargement de l'aperçu...</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="/download/${filename}" class="btn btn-success">
+                                <i class="fas fa-download me-1"></i>Télécharger ce fichier
+                            </a>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(previewModal);
+            const modal = new bootstrap.Modal(previewModal);
+            modal.show();
+
+            // Charger l'aperçu
+            const response = await fetch(`/api/preview/${filename}`);
+            const data = await response.json();
+
+            if (data.success && data.preview) {
+                const preview = data.preview;
+                let html = `
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle me-2"></i>Informations du fichier</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Nom :</strong> ${preview.filename}</li>
+                                <li><strong>Lignes :</strong> ${preview.total_rows}</li>
+                                <li><strong>Colonnes :</strong> ${preview.total_columns}</li>
+                                <li><strong>Taille :</strong> ${formatFileSize(preview.file_size)}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-columns me-2"></i>Colonnes disponibles</h6>
+                            <div class="d-flex flex-wrap gap-1">
+                `;
+
+                preview.columns.forEach(col => {
+                    const isImportant = ['PN', 'YAZAKI PN', 'Status', 'Description', 'Price', 'Project'].some(important =>
+                        col.toLowerCase().includes(important.toLowerCase())
+                    );
+                    html += `<span class="badge ${isImportant ? 'bg-primary' : 'bg-secondary'}">${col}</span>`;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6><i class="fas fa-table me-2"></i>Aperçu des données (5 premières lignes)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                `;
+
+                preview.columns.forEach(col => {
+                    html += `<th>${col}</th>`;
+                });
+
+                html += `
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                preview.sample_data.forEach(row => {
+                    html += '<tr>';
+                    preview.columns.forEach(col => {
+                        const value = row[col] || '';
+                        const displayValue = String(value).length > 30 ? String(value).substring(0, 30) + '...' : value;
+                        html += `<td title="${value}">${displayValue}</td>`;
+                    });
+                    html += '</tr>';
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note :</strong> Cet aperçu montre seulement les 5 premières lignes.
+                        Le fichier complet contient ${preview.total_rows} lignes.
+                    </div>
+                `;
+
+                document.getElementById('preview-content').innerHTML = html;
+
+            } else {
+                document.getElementById('preview-content').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Impossible de charger l'aperçu : ${data.message || 'Erreur inconnue'}
+                    </div>
+                `;
+            }
+
+            // Nettoyer le modal quand il se ferme
+            previewModal.addEventListener('hidden.bs.modal', () => {
+                document.body.removeChild(previewModal);
+            });
+
+        } catch (error) {
+            console.error('Erreur aperçu:', error);
+            alert(`Erreur lors du chargement de l'aperçu: ${error.message}`);
+        }
+    }
+    
+    function refreshResults() {
+        loadResults();
+    }
+    
+    // Charger les résultats au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+        loadResults();
+        
+        // Actualiser automatiquement toutes les 30 secondes
+        setInterval(loadResults, 30000);
+    });
+    
+    // Fonction pour télécharger tous les fichiers
+    function downloadAll() {
+        if (filesData.length === 0) {
+            showError('Aucun fichier à télécharger');
+            return;
+        }
+
+        // Demander confirmation
+        const mainFiles = filesData.filter(f => f.filename.toLowerCase().startsWith('update_'));
+        const otherFiles = filesData.filter(f => !f.filename.toLowerCase().startsWith('update_'));
+
+        let message = `Télécharger ${filesData.length} fichier(s) ?\n\n`;
+        if (mainFiles.length > 0) {
+            message += `📊 Fichiers principaux : ${mainFiles.length}\n`;
+        }
+        if (otherFiles.length > 0) {
+            message += `📁 Autres fichiers : ${otherFiles.length}\n`;
+        }
+        message += '\nLes téléchargements se feront avec un délai de 1 seconde entre chaque fichier.';
+
+        if (!confirm(message)) {
+            return;
+        }
+
+        // Désactiver le bouton pendant le téléchargement
+        const downloadBtn = document.getElementById('download-all-btn');
+        const originalText = downloadBtn.innerHTML;
+        downloadBtn.disabled = true;
+
+        let downloaded = 0;
+
+        filesData.forEach((file, index) => {
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = file.frontend_download_url;
+                link.download = file.filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                downloaded++;
+                downloadBtn.innerHTML = `<i class="fas fa-download me-1"></i>Téléchargement... ${downloaded}/${filesData.length}`;
+
+                // Réactiver le bouton quand tous les téléchargements sont lancés
+                if (downloaded === filesData.length) {
+                    setTimeout(() => {
+                        downloadBtn.disabled = false;
+                        downloadBtn.innerHTML = originalText;
+                        showSuccess(`${filesData.length} fichier(s) téléchargé(s)`);
+                    }, 1000);
+                }
+
+            }, index * 1000); // Délai de 1 seconde entre chaque téléchargement
+        });
+    }
+</script>
+{% endblock %}

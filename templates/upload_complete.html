@@ -1,0 +1,579 @@
+{% extends "base_stable.html" %}
+
+{% block title %}Traitement des Données - Système YAZAKI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        
+        <!-- Étape 1: Sélection du Projet -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-project-diagram me-2"></i>Étape 1 : Sélection du Projet
+                </h4>
+                <small class="text-muted">Choisissez le projet pour enrichir vos données</small>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Mode Suggestion Automatique -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-magic me-2 text-primary"></i>Suggestion Automatique (Recommandé)</h6>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <input type="text" class="form-control" id="project-hint" 
+                                       placeholder="Nom de votre projet (ex: FORD_J74_V710_B2_PP_YOTK_00000)">
+                                <button class="btn btn-primary" type="button" onclick="suggestProject()">
+                                    <i class="fas fa-magic me-1"></i>Suggérer
+                                </button>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Entrez le nom de votre projet pour une suggestion automatique du projet optimal
+                            </small>
+                        </div>
+                        
+                        <!-- Mode Sélection Manuelle -->
+                        <div class="mb-4">
+                            <h6><i class="fas fa-list me-2 text-success"></i>Sélection Manuelle</h6>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <select class="form-select" id="project-column" name="project_column" required>
+                                        <option value="">-- Chargement des projets disponibles... --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-info w-100" onclick="showAllProjects()">
+                                        <i class="fas fa-eye me-1"></i>Voir Tous
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Sélectionnez directement le projet dans la liste
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-cogs fa-3x text-primary mb-3"></i>
+                            <h6>Projet Sélectionné</h6>
+                            <div id="selected-project-info" class="p-3 bg-light rounded">
+                                <small class="text-muted">Aucun projet sélectionné</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Résultat de suggestion -->
+                <div id="suggestion-result" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Étape 2: Upload du Fichier -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>Étape 2 : Upload de vos Données
+                </h4>
+                <small class="text-muted">Téléchargez votre fichier Excel avec les données à traiter</small>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="upload-form" action="{{ url_for('upload_file') }}">
+                    <!-- Zone de drop -->
+                    <div class="file-drop-zone mb-4" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h5>Glissez-déposez votre fichier Excel ici</h5>
+                        <p class="text-muted">ou cliquez pour sélectionner un fichier</p>
+                        <input type="file" name="file" id="file-input" class="d-none" accept=".xlsx,.xls">
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Formats acceptés: .xlsx, .xls (max 100MB)
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Informations du fichier sélectionné -->
+                    <div id="file-info" class="alert alert-info d-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-excel fa-2x me-3"></i>
+                            <div>
+                                <div class="fw-bold" id="file-name"></div>
+                                <div class="small text-muted" id="file-size"></div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="clear-file">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Projet sélectionné (caché) -->
+                    <input type="hidden" name="project_column" id="selected-project-input">
+                </form>
+            </div>
+        </div>
+
+        <!-- Étape 3: Validation et Traitement -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Étape 3 : Validation et Traitement
+                </h4>
+                <small class="text-muted">Vérifiez vos paramètres et lancez le traitement</small>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-file me-2"></i>Fichier à traiter</h6>
+                        <div id="validation-file" class="p-3 bg-light rounded">
+                            <small class="text-muted">Aucun fichier sélectionné</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-project-diagram me-2"></i>Projet sélectionné</h6>
+                        <div id="validation-project" class="p-3 bg-light rounded">
+                            <small class="text-muted">Aucun projet sélectionné</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-success btn-lg" id="process-btn" onclick="processData()" disabled>
+                        <i class="fas fa-cogs me-2"></i>Traiter mes Données
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetAll()">
+                        <i class="fas fa-undo me-2"></i>Recommencer
+                    </button>
+                    <a href="{{ url_for('results_page') }}" class="btn btn-outline-info">
+                        <i class="fas fa-download me-2"></i>Voir Résultats
+                    </a>
+                </div>
+                
+                <!-- Barre de progression -->
+                <div id="progress-container" class="mt-4 d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">Traitement en cours...</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Résultats du traitement -->
+                <div id="results-container" class="mt-4 d-none">
+                    <div class="alert alert-success">
+                        <h5><i class="fas fa-check-circle me-2"></i>Traitement Terminé avec Succès !</h5>
+                        <p class="mb-3">Votre fichier a été traité avec succès. Les fichiers de résultats sont disponibles :</p>
+                        <div id="output-files-list"></div>
+                        <div class="mt-3">
+                            <a href="{{ url_for('results_page') }}" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Télécharger les Résultats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guide d'utilisation -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Guide d'Utilisation</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-1 me-2 text-primary"></i>Sélection du Projet</h6>
+                        <ul class="small text-muted">
+                            <li>Utilisez la suggestion automatique pour plus de rapidité</li>
+                            <li>Ou sélectionnez manuellement dans la liste</li>
+                            <li>Le projet détermine quelles informations seront ajoutées</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-2 me-2 text-success"></i>Upload du Fichier</h6>
+                        <ul class="small text-muted">
+                            <li>Fichier Excel (.xlsx ou .xls) requis</li>
+                            <li>Doit contenir une colonne avec les numéros de pièces</li>
+                            <li>Glissez-déposez ou cliquez pour sélectionner</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-3 me-2 text-info"></i>Traitement</h6>
+                        <ul class="small text-muted">
+                            <li>Vérifiez vos paramètres avant traitement</li>
+                            <li>Le système enrichit vos données avec le Master BOM</li>
+                            <li>Téléchargez le fichier résultat enrichi</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour l'analyse des projets -->
+<div class="modal fade" id="projects-modal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-project-diagram me-2"></i>Projets Disponibles
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="projects-analysis-content">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedProject = null;
+    let allProjects = [];
+    let uploadedFile = null;
+
+    // Gestion du drag & drop
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect();
+        }
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleFileSelect() {
+        const file = fileInput.files[0];
+        if (file) {
+            uploadedFile = file;
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-size').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            document.getElementById('file-info').classList.remove('d-none');
+
+            // Mettre à jour la validation
+            document.getElementById('validation-file').innerHTML = `
+                <i class="fas fa-file-excel me-2 text-success"></i>
+                <strong>${file.name}</strong><br>
+                <small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+            `;
+
+            updateProcessButton();
+        }
+    }
+
+    document.getElementById('clear-file').addEventListener('click', () => {
+        fileInput.value = '';
+        uploadedFile = null;
+        document.getElementById('file-info').classList.add('d-none');
+        document.getElementById('validation-file').innerHTML = '<small class="text-muted">Aucun fichier sélectionné</small>';
+        updateProcessButton();
+    });
+
+    // Gestion de la sélection de projet
+    document.getElementById('project-column').addEventListener('change', function() {
+        const projectName = this.value;
+        if (projectName) {
+            selectProject(projectName);
+        }
+    });
+
+    function selectProject(projectName) {
+        selectedProject = projectName;
+        document.getElementById('selected-project-input').value = projectName;
+
+        // Mettre à jour l'affichage
+        const projectInfo = allProjects.find(p => p.name === projectName);
+        if (projectInfo) {
+            document.getElementById('selected-project-info').innerHTML = `
+                <i class="fas fa-project-diagram me-2 text-success"></i>
+                <strong>${projectName}</strong><br>
+                <small class="text-muted">${projectInfo.fill_percentage}% rempli</small>
+            `;
+
+            document.getElementById('validation-project').innerHTML = `
+                <i class="fas fa-project-diagram me-2 text-success"></i>
+                <strong>${projectName}</strong><br>
+                <small class="text-muted">${projectInfo.fill_percentage}% de données disponibles</small>
+            `;
+        } else {
+            document.getElementById('selected-project-info').innerHTML = `
+                <i class="fas fa-project-diagram me-2 text-success"></i>
+                <strong>${projectName}</strong>
+            `;
+
+            document.getElementById('validation-project').innerHTML = `
+                <i class="fas fa-project-diagram me-2 text-success"></i>
+                <strong>${projectName}</strong>
+            `;
+        }
+
+        updateProcessButton();
+    }
+
+    function updateProcessButton() {
+        const hasFile = uploadedFile !== null;
+        const hasProject = selectedProject !== null;
+        document.getElementById('process-btn').disabled = !(hasFile && hasProject);
+    }
+
+    // Suggestion automatique
+    async function suggestProject() {
+        const projectHint = document.getElementById('project-hint').value.trim();
+        if (!projectHint) {
+            showError('Veuillez entrer un nom de projet');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/suggest-column', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_hint: projectHint })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const confidence = Math.round(data.confidence * 100);
+                const confidenceClass = getConfidenceClass(data.confidence);
+
+                document.getElementById('suggestion-result').innerHTML = `
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-lightbulb fa-2x me-3 text-warning"></i>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">Projet Suggéré</h6>
+                                <p class="mb-1"><strong>${data.suggested_column}</strong></p>
+                                <p class="mb-0">
+                                    Confiance: <span class="confidence-badge ${confidenceClass}">${confidence}%</span>
+                                </p>
+                            </div>
+                            <button class="btn btn-success" onclick="selectProject('${data.suggested_column}')">
+                                <i class="fas fa-check me-1"></i>Utiliser ce Projet
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Sélectionner automatiquement dans la liste déroulante
+                const select = document.getElementById('project-column');
+                if (Array.from(select.options).find(opt => opt.value === data.suggested_column)) {
+                    select.value = data.suggested_column;
+                }
+            } else {
+                showError('Erreur lors de la suggestion: ' + data.message);
+            }
+        } catch (error) {
+            showError('Erreur de communication: ' + error.message);
+        }
+    }
+
+    // Afficher tous les projets
+    async function showAllProjects() {
+        try {
+            const response = await fetch('/api/project-columns');
+            const data = await response.json();
+
+            if (data.success) {
+                allProjects = data.columns;
+
+                // Remplir la liste déroulante
+                const select = document.getElementById('project-column');
+                select.innerHTML = '<option value="">-- Sélectionner un projet --</option>';
+                data.columns.forEach(project => {
+                    const option = new Option(`${project.name} (${project.fill_percentage}%)`, project.name);
+                    select.appendChild(option);
+                });
+
+            } else {
+                showError('Erreur lors du chargement: ' + data.message);
+            }
+        } catch (error) {
+            showError('Erreur de communication: ' + error.message);
+        }
+    }
+
+    // Traitement des données
+    async function processData() {
+        if (!uploadedFile || !selectedProject) {
+            showError('Veuillez sélectionner un fichier et un projet');
+            return;
+        }
+
+        // Afficher la barre de progression
+        document.getElementById('progress-container').classList.remove('d-none');
+        document.getElementById('process-btn').disabled = true;
+
+        try {
+            // 1. Upload du fichier via le frontend proxy
+            updateProgress(10, 'Upload du fichier...');
+
+            const formData = new FormData();
+            formData.append('file', uploadedFile);
+
+            const uploadResponse = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error('Erreur lors de l\'upload du fichier');
+            }
+
+            const uploadData = await uploadResponse.json();
+            if (!uploadData.success) {
+                throw new Error(uploadData.message || 'Erreur lors de l\'upload');
+            }
+
+            updateProgress(50, 'Traitement des données...');
+
+            // 2. Traitement des données via le frontend proxy
+            const processResponse = await fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    file_id: uploadData.file_id,
+                    filename: uploadData.filename,
+                    project_column: selectedProject
+                })
+            });
+
+            if (!processResponse.ok) {
+                throw new Error('Erreur lors du traitement des données');
+            }
+
+            const processData = await processResponse.json();
+            if (!processData.success) {
+                throw new Error(processData.message || 'Erreur lors du traitement');
+            }
+
+            // Traitement terminé avec succès
+            updateProgress(100, 'Traitement terminé avec succès !');
+
+            setTimeout(() => {
+                document.getElementById('progress-container').classList.add('d-none');
+                document.getElementById('results-container').classList.remove('d-none');
+
+                // Afficher les fichiers de résultat
+                const outputFiles = processData.output_files || [];
+                let filesHtml = '';
+
+                if (outputFiles.length > 0) {
+                    outputFiles.forEach(file => {
+                        filesHtml += `
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-file-excel me-2 text-success"></i>
+                                <span class="me-auto">${file.filename}</span>
+                                <a href="/download/${file.filename}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-download me-1"></i>Télécharger
+                                </a>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Si pas de fichiers dans la réponse, afficher un lien générique
+                    const today = new Date().toISOString().split('T')[0];
+                    filesHtml = `
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-file-excel me-2 text-success"></i>
+                            <span class="me-auto">Update_${today}.xlsx</span>
+                            <a href="/download/Update_${today}.xlsx" class="btn btn-sm btn-success">
+                                <i class="fas fa-download me-1"></i>Télécharger
+                            </a>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('output-files-list').innerHTML = filesHtml;
+
+                // Réactiver le bouton pour un nouveau traitement
+                document.getElementById('process-btn').disabled = false;
+
+            }, 1500);
+
+        } catch (error) {
+            console.error('Erreur de traitement:', error);
+            document.getElementById('progress-container').classList.add('d-none');
+            document.getElementById('process-btn').disabled = false;
+            showError('Erreur lors du traitement: ' + error.message);
+        }
+    }
+
+    function resetAll() {
+        // Réinitialiser le fichier
+        fileInput.value = '';
+        uploadedFile = null;
+        document.getElementById('file-info').classList.add('d-none');
+        document.getElementById('validation-file').innerHTML = '<small class="text-muted">Aucun fichier sélectionné</small>';
+
+        // Réinitialiser le projet
+        selectedProject = null;
+        document.getElementById('project-column').value = '';
+        document.getElementById('project-hint').value = '';
+        document.getElementById('selected-project-input').value = '';
+        document.getElementById('selected-project-info').innerHTML = '<small class="text-muted">Aucun projet sélectionné</small>';
+        document.getElementById('validation-project').innerHTML = '<small class="text-muted">Aucun projet sélectionné</small>';
+
+        // Réinitialiser les résultats
+        document.getElementById('suggestion-result').innerHTML = '';
+        document.getElementById('progress-container').classList.add('d-none');
+        document.getElementById('results-container').classList.add('d-none');
+
+        updateProcessButton();
+    }
+
+    // Charger les projets au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+        showAllProjects();
+    });
+
+    // Fonctions utilitaires
+    function updateProgress(percent, text) {
+        document.getElementById('progress-bar').style.width = percent + '%';
+        document.getElementById('progress-text').textContent = Math.round(percent) + '%';
+        if (text) {
+            document.querySelector('#progress-container .fw-bold').textContent = text;
+        }
+    }
+
+    function getConfidenceClass(confidence) {
+        if (confidence > 0.7) return 'confidence-high';
+        if (confidence > 0.5) return 'confidence-medium';
+        return 'confidence-low';
+    }
+</script>
+{% endblock %}

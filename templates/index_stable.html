@@ -1,0 +1,163 @@
+{% extends "base_stable.html" %}
+
+{% block title %}Accueil - Component Data Processor Stable{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <div class="mb-5">
+            <i class="fas fa-cogs fa-4x text-primary mb-4"></i>
+            <h2 class="mb-4">Système de Traitement des Composants YAZAKI</h2>
+            <p class="lead text-muted">
+                Outil professionnel pour enrichir vos données de composants avec les informations
+                du Master BOM selon le projet sélectionné.
+            </p>
+        </div>
+        
+        <!-- Status du système -->
+        <div class="row mb-5">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-{{ 'check-circle' if backend_available else 'exclamation-triangle' }} fa-3x text-{{ 'success' if backend_available else 'danger' }} mb-3"></i>
+                        <h5>État du Système</h5>
+                        <p class="text-muted">
+                            {% if backend_available %}
+                                <span class="badge bg-success fs-6">Système Opérationnel</span><br>
+                                Prêt pour le traitement des données
+                            {% else %}
+                                <span class="badge bg-danger fs-6">Système Non Disponible</span><br>
+                                Contactez l'administrateur système
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions principales -->
+        <div class="d-grid gap-3 d-md-flex justify-content-md-center mb-5">
+            <a href="{{ url_for('upload_enhanced') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-cogs me-2"></i>Traiter mes Données
+            </a>
+            <a href="{{ url_for('results_page') }}" class="btn btn-outline-success btn-lg">
+                <i class="fas fa-download me-2"></i>Récupérer Résultats
+            </a>
+        </div>
+        
+        <!-- Fonctionnalités -->
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-magic fa-3x text-primary mb-3"></i>
+                        <h5>Suggestion Automatique</h5>
+                        <p class="text-muted">
+                            Le système suggère automatiquement le projet approprié
+                            basé sur le nom de votre fichier pour un traitement optimal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-success mb-3"></i>
+                        <h5>Enrichissement des Données</h5>
+                        <p class="text-muted">
+                            Vos données sont enrichies avec les informations du Master BOM :
+                            statut, description, prix selon le projet sélectionné.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shield-check fa-3x text-info mb-3"></i>
+                        <h5>Traitement Sécurisé</h5>
+                        <p class="text-muted">
+                            Vos données sont traitées de manière sécurisée sans modification
+                            du Master BOM original. Traçabilité complète des opérations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Guide d'utilisation -->
+        <div class="mt-5">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Comment utiliser le système</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-upload me-2 text-primary"></i>Étape 1 : Préparer vos données</h6>
+                            <ul class="list-unstyled text-muted">
+                                <li>• Fichier Excel (.xlsx ou .xls)</li>
+                                <li>• Colonne avec les numéros de pièces (PN)</li>
+                                <li>• Colonne avec le projet</li>
+                                <li>• Données propres et complètes</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cogs me-2 text-success"></i>Étape 2 : Traitement</h6>
+                            <ul class="list-unstyled text-muted">
+                                <li>• Sélectionner le projet approprié</li>
+                                <li>• Le système enrichit vos données</li>
+                                <li>• Ajout du statut, description, prix</li>
+                                <li>• Génération du fichier résultat</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                <strong>Conseil :</strong> Utilisez le "Traitement Intelligent" pour une suggestion automatique du projet basée sur le nom de votre fichier.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Support -->
+        <div class="mt-4">
+            <div class="text-center">
+                <p class="text-muted">
+                    <i class="fas fa-question-circle me-2"></i>
+                    Besoin d'aide ? Contactez l'équipe support technique
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation des cartes au scroll
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+        
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s, transform 0.6s';
+            observer.observe(card);
+        });
+    });
+</script>
+{% endblock %}

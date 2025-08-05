@@ -15,10 +15,13 @@
                     des données de composants électroniques basées sur des fichiers Excel.
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                    <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg me-md-2">
-                        <i class="fas fa-upload me-2"></i>Traiter un fichier
+                    <a href="{{ url_for('upload_enhanced') }}" class="btn btn-primary btn-lg me-md-2">
+                        <i class="fas fa-brain me-2"></i>Interface Avancée
                     </a>
-                    <a href="{{ url_for('create_samples') }}" class="btn btn-outline-primary btn-lg">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-outline-primary btn-lg me-md-2">
+                        <i class="fas fa-upload me-2"></i>Interface Classique
+                    </a>
+                    <a href="{{ url_for('create_samples') }}" class="btn btn-outline-secondary btn-lg">
                         <i class="fas fa-file-excel me-2"></i>Créer des exemples
                     </a>
                 </div>
@@ -46,12 +49,12 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-search fa-2x text-primary me-3"></i>
-                            <h5 class="card-title mb-0">Lookup intelligent</h5>
+                            <i class="fas fa-brain fa-2x text-primary me-3"></i>
+                            <h5 class="card-title mb-0">IA de Suggestion</h5>
                         </div>
                         <p class="card-text">
-                            Comparaison automatique avec le Master BOM,
-                            application de la logique métier selon les statuts.
+                            Intelligence artificielle pour suggérer automatiquement
+                            la meilleure colonne de projet basée sur votre nom de fichier.
                         </p>
                     </div>
                 </div>
